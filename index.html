@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>WT AM Area Renaldi - Frontend V6.3</title>
+<title>System Area Renaldi - Frontend V6.3</title>
 <style>
 :root{
   --bg:#f5f7fb;
@@ -218,6 +218,9 @@ tr:last-child td{border-bottom:0}
   }
 </style>
 
+<style>
+/* STORE API MAPPING V2: display names are kept in UI, backend receives canonical store keys. */
+</style>
 </head>
 <body>
 
@@ -852,7 +855,21 @@ function formatRupiah(n){
 }
 
 function storeOfUser(){
+  // Nama store untuk tampilan website.
   return state.user?.store || '';
+}
+
+function storeApiOfUser(){
+  // Nama store yang dikirim ke backend/database.
+  // Akun STORE menggunakan nama display, sedangkan backend memakai key resmi.
+  const raw = String(state.user?.store || '').trim().toUpperCase();
+  const key = raw.replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+
+  if(key === 'SSS MENTENG' || key === 'MENTENG') return 'MENTENG';
+  if(key === 'SKS CITYWALK' || key === 'SKS CITY WALK' || key === 'CITYWALK') return 'CITYWALK';
+  if(key === 'SKS CITRA TOWER' || key === 'SS CITRA TOWER' || key === 'CITRA TOWER') return 'CITRA TOWER';
+
+  return raw;
 }
 
 function isAM(){
@@ -1023,13 +1040,13 @@ async function loadDashboard(){
       const result = await apiGet('amDashboard');
       renderAMDashboard(result.data||[]);
     }else{
-      const result = await apiGet('dashboard',{store:storeOfUser()});
+      const result = await apiGet('dashboard',{store:storeApiOfUser()});
       state.dashboard=result;
       renderStoreDashboard(result);
     }
 
     const recent = await apiGet('recentMaintenance',{
-      store:isAM()?'':storeOfUser(),
+      store:isAM()?'':storeApiOfUser(),
       limit:5
     });
     renderRecentMaintenance(recent.data||[]);
@@ -1048,7 +1065,7 @@ async function loadSmallwareDashboardMini(){
 
   try{
     const result = await apiGet('smallware',{
-      store:isAM() ? '' : storeOfUser(),
+      store:isAM() ? '' : storeApiOfUser(),
       limit:5,
       role:state.user.role || 'STORE'
     });
@@ -1199,11 +1216,11 @@ function initWastePage(){
 async function loadExternalWasteDashboard(updateMainDashboard=false){
   if(!state.user) return;
   try{
-    const store = isAM() ? (($('wtWasteStore')?.value)||'') : storeOfUser();
+    const store = isAM() ? (($('wtWasteStore')?.value)||'') : storeApiOfUser();
     const result = await apiGet('wasteDashboard',{
       store,
       role:state.user.role || 'STORE',
-      userStore:state.user.store || ''
+      userStore:storeApiOfUser()
     });
 
     if(!result || !result.success) throw new Error(result?.message||'Waste gagal dimuat.');
@@ -1325,7 +1342,7 @@ async function saveSales(){
     const payload={
       action:'saveSales',
       tanggal:$('salesDate').value,
-      store:storeOfUser(),
+      store:storeApiOfUser(),
       dineIn:num('salesDineIn'),
       delivery:num('salesDelivery'),
       takeAway:num('salesTakeAway'),
@@ -1367,7 +1384,7 @@ async function saveWaste(){
     const payload={
       action:'saveWaste',
       tanggal:$('wasteDate').value,
-      store:storeOfUser(),
+      store:storeApiOfUser(),
       kategori:$('wasteCategory').value.trim(),
       itemId:$('wasteItemId').value.trim(),
       namaItem:$('wasteItemName').value.trim(),
@@ -1420,7 +1437,7 @@ async function saveMaintenance(){
       noSC,
       tanggalInput:$('mtInputDate').value,
       tanggalKejadian:$('mtIncidentDate').value,
-      store:storeOfUser(),
+      store:storeApiOfUser(),
       kategori:$('mtCategory').value,
       itemAsset:$('mtAsset').value.trim(),
       jenisKerusakan:$('mtDamage').value.trim(),
@@ -1525,13 +1542,13 @@ async function saveKPI(){
     showLoading(true);
     const payload={
       action:'saveKPI',
-      store:storeOfUser(),
+      store:storeApiOfUser(),
       bulan:$('kpiMonth').value,
       tahun:$('kpiYear').value,
       keterangan:$('kpiNote').value.trim(),
       uploadBy:state.user?.username||'',
       photo:await fileToDataURL(file),
-      fileName:'KPI_'+safeName(storeOfUser())+'_'+$('kpiMonth').value+'_'+$('kpiYear').value+'_'+Date.now()+'.jpg',
+      fileName:'KPI_'+safeName(storeApiOfUser())+'_'+$('kpiMonth').value+'_'+$('kpiYear').value+'_'+Date.now()+'.jpg',
       mimeType:file.type||'image/jpeg'
     };
 
@@ -1636,8 +1653,8 @@ async function loadWalkthrough(){
     const params = {
       limit: 50,
       role: isAM() ? (state.user?.role || 'AM') : 'STORE',
-      userStore: isAM() ? '' : storeOfUser(),
-      store: isAM() ? selectedStore : storeOfUser()
+      userStore: isAM() ? '' : storeApiOfUser(),
+      store: isAM() ? selectedStore : storeApiOfUser()
     };
 
     showLoading(true);
@@ -1716,7 +1733,7 @@ async function viewWalkthroughDetail(id){
     const r = await apiGet('walkthrough',{
       id:id,
       role:isAM() ? (state.user?.role || 'AM') : 'STORE',
-      userStore:isAM() ? '' : storeOfUser()
+      userStore:isAM() ? '' : storeApiOfUser()
     });
 
     if(!r.data){
@@ -2313,8 +2330,8 @@ async function saveSmallwareRequestUI(){
     const result = await apiPost({
       action:'saveSmallwareRequest',
       role:state.user.role || 'STORE',
-      store:isAM() ? $('swStore').value : storeOfUser(),
-      userStore:state.user.store || '',
+      store:isAM() ? $('swStore').value : storeApiOfUser(),
+      userStore:storeApiOfUser(),
       tanggalRequest:$('swDate').value || todayISO(),
       namaSmallware:name,
       qtyRequest:qty,
@@ -2484,4 +2501,3 @@ function compressSmallwareImage(file){
 </script>
 </body>
 </html>
-
