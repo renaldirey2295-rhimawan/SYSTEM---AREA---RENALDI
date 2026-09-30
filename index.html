@@ -233,7 +233,7 @@ tr:last-child td{border-bottom:0}
 <div id="loginView" class="login-wrap">
   <div class="login-card">
     <div class="logo">🧭</div>
-    <h2>WT AM Area Renaldi</h2>
+    <h2>System Area Renaldi</h2>
     <p>Control Store Area · Login Sistem</p>
 
     <div class="field">
@@ -259,7 +259,7 @@ tr:last-child td{border-bottom:0}
     <div class="brand">
       <div class="logo">🧭</div>
       <div>
-        <h1>WT AM Area Renaldi</h1>
+        <h1>System Area Renaldi</h1>
         <small>STORE OPERATION SYSTEM</small>
       </div>
     </div>
@@ -817,7 +817,7 @@ tr:last-child td{border-bottom:0}
    masukkan URL /exec di bawah ini.
 */
 const CONFIG = {
-  APP_NAME: 'WT AM AREA RENALDI',
+  APP_NAME: 'System AREA RENALDI',
   MODE: 'APPS_SCRIPT_WEBAPP'
 };
 
@@ -860,14 +860,41 @@ function storeOfUser(){
 }
 
 function storeApiOfUser(){
-  // Nama store yang dikirim ke backend/database.
-  // Akun STORE menggunakan nama display, sedangkan backend memakai key resmi.
+  // Nama/store key yang dikirim ke backend/database.
+  // Backend menggunakan key resmi: CITYWALK, CITRA TOWER, MENTENG.
+  // Mendukung nama display, variasi penulisan, dan ID store.
   const raw = String(state.user?.store || '').trim().toUpperCase();
   const key = raw.replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
 
-  if(key === 'SSS MENTENG' || key === 'MENTENG') return 'MENTENG';
-  if(key === 'SKS CITYWALK' || key === 'SKS CITY WALK' || key === 'CITYWALK') return 'CITYWALK';
-  if(key === 'SKS CITRA TOWER' || key === 'SS CITRA TOWER' || key === 'CITRA TOWER') return 'CITRA TOWER';
+  // MENTENG
+  if(
+    key === 'MENTENG' ||
+    key === 'SSS MENTENG' ||
+    key === 'SSS MTG' ||
+    key === 'SSS-MTG' ||
+    key.includes('MENTENG')
+  ) return 'MENTENG';
+
+  // CITYWALK
+  if(
+    key === 'CITYWALK' ||
+    key === 'SKS CITYWALK' ||
+    key === 'SKS CITY WALK' ||
+    key === 'SKS CW' ||
+    key === 'SKS-CW' ||
+    key.includes('CITYWALK') ||
+    key.includes('CITY WALK')
+  ) return 'CITYWALK';
+
+  // CITRA TOWER
+  if(
+    key === 'CITRA TOWER' ||
+    key === 'SKS CITRA TOWER' ||
+    key === 'SS CITRA TOWER' ||
+    key === 'SKS CT' ||
+    key === 'SKS-CT' ||
+    key.includes('CITRA TOWER')
+  ) return 'CITRA TOWER';
 
   return raw;
 }
