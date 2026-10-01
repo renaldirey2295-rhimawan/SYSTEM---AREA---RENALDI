@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>System Area Renaldi - Frontend V6.3</title>
+<title>WT AM Area Renaldi - Frontend V6.3</title>
 <style>
 :root{
   --bg:#f5f7fb;
@@ -233,7 +233,7 @@ tr:last-child td{border-bottom:0}
 <div id="loginView" class="login-wrap">
   <div class="login-card">
     <div class="logo">🧭</div>
-    <h2>System Area Renaldi</h2>
+    <h2>WT AM Area Renaldi</h2>
     <p>Control Store Area · Login Sistem</p>
 
     <div class="field">
@@ -259,7 +259,7 @@ tr:last-child td{border-bottom:0}
     <div class="brand">
       <div class="logo">🧭</div>
       <div>
-        <h1>System Area Renaldi</h1>
+        <h1>WT AM Area Renaldi</h1>
         <small>STORE OPERATION SYSTEM</small>
       </div>
     </div>
@@ -399,6 +399,9 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales untuk store ini.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>TANGGAL</th><th>DINE IN</th><th>DELIVERY</th><th>TAKE AWAY</th><th>CONNECT / BO</th><th>TIPS</th><th>TOTAL SALES</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
+    </section>
+
     <section id="page-waste" class="page-section hidden">
       <div class="hero">
         <h2>♻️ Waste Dashboard</h2>
@@ -488,6 +491,8 @@ tr:last-child td{border-bottom:0}
           </table>
         </div>
       </div>
+
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Waste</h3><div class="small">Seluruh history Waste dari Waste Control untuk store ini.</div></div><button class="btn btn-light" onclick="loadWasteHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>PERIODE</th><th>KODE</th><th>NAMA BARANG</th><th>SATUAN</th><th>TOTAL WASTE</th><th>STORE</th></tr></thead><tbody id="wasteHistoryBody"></tbody></table></div></div>
 
       <div class="card" style="margin-top:16px">
         <div class="card-head">
@@ -587,6 +592,7 @@ tr:last-child td{border-bottom:0}
         </div>
         <div id="maintenanceResult" style="margin-top:14px"></div>
       </div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance</h3><div class="small">Seluruh ticket Maintenance store ini.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-kpi" class="page-section hidden">
@@ -629,6 +635,7 @@ tr:last-child td{border-bottom:0}
         <button class="btn btn-purple" onclick="saveKPI()">Upload KPI</button>
       </div>
 
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History KPI</h3><div class="small">Seluruh history upload KPI store ini.</div></div><button class="btn btn-light" onclick="loadKPIHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:900px"><thead><tr><th>TIMESTAMP</th><th>BULAN</th><th>TAHUN</th><th>TGL UPLOAD</th><th>KETERANGAN</th><th>FILE</th><th>UPLOAD BY</th></tr></thead><tbody id="kpiHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-walkthrough" class="page-section hidden">
@@ -817,7 +824,7 @@ tr:last-child td{border-bottom:0}
    masukkan URL /exec di bawah ini.
 */
 const CONFIG = {
-  APP_NAME: 'System AREA RENALDI',
+  APP_NAME: 'WT AM AREA RENALDI',
   MODE: 'APPS_SCRIPT_WEBAPP'
 };
 
@@ -1055,6 +1062,10 @@ function showPage(page){
   });
 
   if(page==='dashboard') loadDashboard();
+  if(page==='sales'){ $('salesDate').value=todayISO(); $('salesStore').value=storeOfUser(); loadSalesHistory(); }
+  if(page==='waste'){ initWastePage(); loadWasteHistory(); }
+  if(page==='maintenance'){ $('mtStore').value=storeOfUser(); loadMaintenanceHistory(); }
+  if(page==='kpi'){ $('kpiStore').value=storeOfUser(); loadKPIHistory(); }
   if(page==='walkthrough') initWalkthrough();
   if(page==='smallware') initSmallware();
   if(page==='waste') initWastePage();
@@ -1350,6 +1361,14 @@ function renderWasteLatest(rows){
     </tr>`).join('');
 }
 
+/* =========================================================
+   HISTORY STORE - SEMUA MENU
+========================================================= */
+async function loadSalesHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'sales',store:storeApiOfUser(),role:'STORE',limit:1000});const rows=r.data||[];$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${formatRupiah(x.delivery)}</td><td>${formatRupiah(x.takeAway)}</td><td>${formatRupiah(x.connectBO)}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="9" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
+async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:storeApiOfUser(),role:'STORE',userStore:storeApiOfUser(),limit:1000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
+async function loadMaintenanceHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'maintenance',store:storeApiOfUser(),role:'STORE',limit:1000});const rows=r.data||[];$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance: '+err.message)}}
+async function loadKPIHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'kpi',store:storeApiOfUser(),role:'STORE',limit:1000});const rows=r.data||[];$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI: '+err.message)}}
+
 /* SALES */
 ['salesDineIn','salesDelivery','salesTakeAway','salesConnect','salesTips'].forEach(id=>{
   $(id).addEventListener('input',updateSalesTotal);
@@ -1388,6 +1407,7 @@ async function saveSales(){
     const r=await apiPost(payload);
     toast(`Sales tersimpan. Total ${formatRupiah(r.totalSales)}`);
     resetSales();
+    await loadSalesHistory();
     loadDashboard();
   }catch(err){toast(err.message)}
   finally{showLoading(false)}
@@ -1483,6 +1503,7 @@ async function saveMaintenance(){
     const r=await apiPost(payload);
     toast(`Ticket ${r.noSC} berhasil dibuat.`);
     clearMaintenanceForm();
+    await loadMaintenanceHistory();
     loadDashboard();
   }catch(err){toast(err.message)}
   finally{showLoading(false)}
@@ -1584,6 +1605,7 @@ async function saveKPI(){
     $('kpiPhoto').value='';
     $('kpiPreview').innerHTML='';
     $('kpiNote').value='';
+    await loadKPIHistory();
     loadDashboard();
   }catch(err){toast(err.message)}
   finally{showLoading(false)}
@@ -1667,7 +1689,7 @@ function initWalkthrough(){
     : `STORE: hanya dapat melihat hasil Walkthrough ${storeOfUser()} (VIEW ONLY).`;
 
   $('walkthroughHeroSub').textContent = am
-    ? 'Hasil Walkthrough dari website Walkthrough GitHub. Store hanya dapat melihat temuan dan tindak lanjut.'
+    ? 'Seluruh history Walkthrough dari website Walkthrough GitHub. Store hanya dapat melihat temuan dan tindak lanjut.'
     : `Hasil Walkthrough ${storeOfUser()} — mode lihat saja.`;
 
   loadWalkthrough();
@@ -1678,7 +1700,7 @@ async function loadWalkthrough(){
     const selectedStore = $('walkthroughStoreFilter')?.value || '';
 
     const params = {
-      limit: 50,
+      limit: 5000,
       role: isAM() ? (state.user?.role || 'AM') : 'STORE',
       userStore: isAM() ? '' : storeApiOfUser(),
       store: isAM() ? selectedStore : storeApiOfUser()
@@ -2041,7 +2063,7 @@ async function loadSmallware(){
 
     const result = await apiGet('smallware',{
       store: isAM() ? '' : storeOfUser(),
-      limit: 100,
+      limit: 1000,
       role: state.user.role || 'STORE'
     });
 
