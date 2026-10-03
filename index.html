@@ -292,6 +292,21 @@ tr:last-child td{border-bottom:0}
         <p id="welcomeSub">Satu portal untuk menjalankan seluruh sistem operasional store.</p>
       </div>
 
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <div>
+            <h3>🏪 Pilih Store Dashboard</h3>
+            <div class="small">Pilih satu store untuk melihat ringkasan khusus store tersebut. Pilih SEMUA STORE untuk melihat data setiap store secara terpisah.</div>
+          </div>
+          <select id="dashboardStoreFilter" onchange="applyDashboardStoreFilter()" style="min-width:220px">
+            <option value="ALL">SEMUA STORE</option>
+            <option value="CITYWALK">CITYWALK</option>
+            <option value="CITRA TOWER">CITRA TOWER</option>
+            <option value="MENTENG">MENTENG</option>
+          </select>
+        </div>
+      </div>
+
       <div class="stats">
         <div class="stat">
           <div class="icon">💰</div>
@@ -1051,6 +1066,10 @@ function initAfterLogin(){
 
   const store = storeOfUser();
 
+  if($('dashboardStoreFilter')){
+    $('dashboardStoreFilter').value = 'ALL';
+  }
+
   $('welcomeTitle').textContent = 'Dashboard Semua Store';
 
   $('welcomeSub').textContent =
@@ -1094,32 +1113,38 @@ function showPage(page){
 
 async function loadDashboard(){
   showLoading(true);
+
   try{
-    // Dashboard selalu mengambil ringkasan ALL STORE.
+    // Ambil data semua store dari backend, tetapi TIDAK dijumlahkan.
+    // Masing-masing store tetap menjadi record terpisah.
     const result = await apiGet('amDashboard');
     state.dashboard = result;
+
     renderAMDashboard(result.data || []);
 
-    // Maintenance terbaru juga ALL STORE.
+    const selected = $('dashboardStoreFilter')?.value || 'ALL';
+
+    // Maintenance terbaru mengikuti pilihan dashboard.
     const recent = await apiGet('recentMaintenance',{
-      store:'',
-      limit:20
+      store: selected === 'ALL' ? '' : selected,
+      limit: 20
     });
-    renderRecentMaintenance(recent.data||[]);
+    renderRecentMaintenance(recent.data || []);
 
-    // Smallware mini = ALL STORE.
-    await loadSmallwareDashboardMini();
+    // Smallware mini juga mengikuti pilihan dashboard.
+    await loadSmallwareDashboardMini(selected);
 
-    // Waste dashboard = ALL STORE.
+    // Waste dashboard mengikuti pilihan dashboard.
     const wasteResult = await apiGet('wasteDashboard',{
-      store:'ALL',
-      role:'STORE',
-      userStore:''
+      store: selected === 'ALL' ? 'ALL' : selected,
+      role: 'STORE',
+      userStore: ''
     });
+
     if(wasteResult && wasteResult.success){
-      $('statWaste').textContent = Number(wasteResult.summary?.totalWaste||0)
-        .toLocaleString('id-ID',{maximumFractionDigits:2});
+      renderDashboardWasteSummary(wasteResult, selected);
     }
+
   }catch(err){
     toast(err.message);
   }finally{
@@ -1127,27 +1152,40 @@ async function loadDashboard(){
   }
 }
 
+function applyDashboardStoreFilter(){
+  // Refresh hanya dashboard. Input pada menu lain tetap menggunakan store login.
+  loadDashboard();
+}
 
-async function loadSmallwareDashboardMini(){
+async function loadSmallwareDashboardMini(selectedStore='ALL'){
   if(!state.user || !$('smallwareDashboardMini')) return;
 
   try{
     const result = await apiGet('smallware',{
-      store:'',
-      limit:20,
-      role:'STORE'
+      store: selectedStore === 'ALL' ? '' : selectedStore,
+      limit: 20,
+      role: 'STORE'
     });
+
     const rows = result.data || [];
 
     if(!rows.length){
-      $('smallwareDashboardMini').innerHTML='<div class="empty">Belum ada request Smallware.</div>';
+      $('smallwareDashboardMini').innerHTML =
+        '<div class="empty">Belum ada request Smallware untuk pilihan store ini.</div>';
       return;
     }
 
     $('smallwareDashboardMini').innerHTML = `
       <div class="table-wrap">
         <table style="min-width:650px">
-          <thead><tr><th>STORE</th><th>SMALLWARE</th><th>QTY</th><th>STATUS</th></tr></thead>
+          <thead>
+            <tr>
+              <th>STORE</th>
+              <th>SMALLWARE</th>
+              <th>QTY</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
           <tbody>
             ${rows.map(x=>`
               <tr>
@@ -1160,7 +1198,8 @@ async function loadSmallwareDashboardMini(){
         </table>
       </div>`;
   }catch(e){
-    $('smallwareDashboardMini').innerHTML='<div class="empty">Smallware belum dapat dimuat.</div>';
+    $('smallwareDashboardMini').innerHTML =
+      '<div class="empty">Smallware belum dapat dimuat.</div>';
   }
 }
 
@@ -1181,27 +1220,61 @@ function renderStoreDashboard(d){
     : `<div class="empty">Belum ada upload KPI.</div>`;
 }
 
+function getDashboardSelectedStore(){
+  return $('dashboardStoreFilter')?.value || 'ALL';
+}
+
+function findDashboardStore(rows, store){
+  const target = String(store || '').toUpperCase();
+  return (Array.isArray(rows) ? rows : []).find(r =>
+    String(r.store || '').toUpperCase() === target
+  ) || null;
+}
+
 function renderAMDashboard(rows){
   const data = Array.isArray(rows) ? rows : [];
+  const selected = getDashboardSelectedStore();
 
-  const totals = data.reduce((a,r)=>{
-    a.sales += Number(r.sales?.totalSales||0);
-    a.waste += Number(r.waste?.totalQty||0);
-    a.open += Number(r.maintenance?.open||0);
-    a.kpi += Number(r.kpi?.uploadCount||0);
-    return a;
-  },{sales:0,waste:0,open:0,kpi:0});
+  const filtered = selected === 'ALL'
+    ? data
+    : data.filter(r =>
+        String(r.store || '').toUpperCase() === selected.toUpperCase()
+      );
 
-  $('statSales').textContent = formatRupiah(totals.sales);
-  $('statWaste').textContent = totals.waste.toLocaleString('id-ID');
-  $('statMaintenance').textContent = totals.open;
-  $('statKpi').textContent = totals.kpi;
+  // PENTING:
+  // Jangan menjumlahkan sales antar-store.
+  // Saat ALL STORE dipilih, kartu menampilkan "PER STORE" dan tabel
+  // menjadi sumber angka masing-masing store.
+  if(selected === 'ALL'){
+    $('statSales').textContent = 'PER STORE';
+    $('statWaste').textContent = 'PER STORE';
+    $('statMaintenance').textContent = 'PER STORE';
+    $('statKpi').textContent = 'PER STORE';
+  }else{
+    const d = findDashboardStore(data, selected);
+
+    $('statSales').textContent = d
+      ? formatRupiah(d.sales?.totalSales)
+      : 'Rp 0';
+
+    $('statWaste').textContent = d
+      ? Number(d.waste?.totalQty||0).toLocaleString('id-ID')
+      : '0';
+
+    $('statMaintenance').textContent = d
+      ? Number(d.maintenance?.open||0)
+      : '0';
+
+    $('statKpi').textContent = d
+      ? Number(d.kpi?.uploadCount||0)
+      : '0';
+  }
 
   const body = $('allStoreDashboardBody');
   if(!body) return;
 
-  body.innerHTML = data.length
-    ? data.map(r=>`
+  body.innerHTML = filtered.length
+    ? filtered.map(r=>`
         <tr>
           <td><b>${escapeHtml(r.store||'-')}</b></td>
           <td>${formatRupiah(r.sales?.totalSales)}</td>
@@ -1216,8 +1289,8 @@ function renderAMDashboard(rows){
       `).join('')
     : '<tr><td colspan="5" class="empty">Belum ada data store.</td></tr>';
 
-  $('kpiMini').innerHTML = data.length
-    ? data.map(r=>`
+  $('kpiMini').innerHTML = filtered.length
+    ? filtered.map(r=>`
         <div class="kpi-status">
           <span><b>${escapeHtml(r.store||'-')}</b></span>
           <span class="badge ${r.kpi?.uploadCount ? 'badge-done':'badge-open'}">
@@ -1228,16 +1301,37 @@ function renderAMDashboard(rows){
     : '<div class="empty">Belum ada data KPI.</div>';
 }
 
+function renderDashboardWasteSummary(wasteResult, selected){
+  const summary = wasteResult.summary || {};
+
+  if(selected === 'ALL'){
+    $('statWaste').textContent = 'PER STORE';
+  }else{
+    $('statWaste').textContent =
+      Number(summary.totalWaste || 0).toLocaleString('id-ID',{
+        maximumFractionDigits:2
+      });
+  }
+}
+
 function renderRecentMaintenance(rows){
   if(!rows.length){
-    $('maintenanceMini').innerHTML='<div class="empty">Belum ada maintenance ticket.</div>';
+    $('maintenanceMini').innerHTML =
+      '<div class="empty">Belum ada maintenance ticket untuk pilihan store.</div>';
     return;
   }
 
   $('maintenanceMini').innerHTML = `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>No SC</th><th>Store</th><th>Asset</th><th>Status</th></tr></thead>
+        <thead>
+          <tr>
+            <th>No SC</th>
+            <th>Store</th>
+            <th>Asset</th>
+            <th>Status</th>
+          </tr>
+        </thead>
         <tbody>
         ${rows.map(r=>`
           <tr>
