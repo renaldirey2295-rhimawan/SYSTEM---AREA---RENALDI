@@ -208,6 +208,15 @@ tr:last-child td{border-bottom:0}
 </style>
 
 <style>
+  .store-input{
+    width:100%;
+    min-height:42px;
+    padding:10px 12px;
+    border:1px solid #dfe7f1;
+    border-radius:12px;
+    background:#fff;
+    font:inherit;
+  }
   .store-only-note{
     margin-top:8px;
     padding:10px 12px;
@@ -230,31 +239,19 @@ tr:last-child td{border-bottom:0}
 
 <div id="toast" class="toast hidden"></div>
 
-<div id="loginView" class="login-wrap">
+<div id="loginView" class="login-wrap hidden">
   <div class="login-card">
     <div class="logo">🧭</div>
     <h2>WT AM Area Renaldi</h2>
-    <p>Control Store Area · Login Sistem</p>
-
-    <div class="field">
-      <label>USERNAME</label>
-      <input id="loginUsername" autocomplete="username" placeholder="Masukkan username">
-    </div>
-
-    <div class="field">
-      <label>PASSWORD</label>
-      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
-    </div>
-
-    <button class="btn btn-primary full" onclick="login()">MASUK KE SISTEM</button>
-
-    <div class="small" style="margin-top:14px;text-align:center">
-      Frontend terhubung langsung ke Code.gs pada Apps Script Web App.
+    <p>Store Operation Portal</p>
+    <div class="store-only-note">
+      Sistem ini tidak menggunakan username dan password.
+      Pilih nama Store pada menu input sebelum menyimpan data.
     </div>
   </div>
 </div>
 
-<div id="appView" class="app hidden">
+<div id="appView" class="app">
   <header class="topbar">
     <div class="brand">
       <div class="logo">🧭</div>
@@ -265,8 +262,7 @@ tr:last-child td{border-bottom:0}
     </div>
 
     <div class="userbox">
-      <div id="userPill" class="userpill">-</div>
-      <button class="btn btn-light" onclick="logout()">Keluar</button>
+      <div id="userPill" class="userpill">PUBLIC STORE PORTAL</div>
     </div>
   </header>
 
@@ -282,8 +278,8 @@ tr:last-child td{border-bottom:0}
     </nav>
 
     <div class="store-only-note">
-      🔐 <b>STORE PORTAL</b> — Login menggunakan akun Store masing-masing.
-      Semua akun Store dapat melihat data seluruh store. Input tetap tercatat sesuai store yang login. <b>Dashboard V8</b>.
+      🌐 <b>STORE PORTAL</b> — Tanpa username & password.
+      Semua pengguna dapat melihat seluruh data store. Untuk input, pilih Store pada dropdown di menu terkait.
     </div>
 
     <section id="page-dashboard" class="page-section">
@@ -399,8 +395,13 @@ tr:last-child td{border-bottom:0}
             <input id="salesDate" type="date">
           </div>
           <div class="field">
-            <label>STORE</label>
-            <input id="salesStore" readonly>
+            <label>STORE *</label>
+            <select id="salesStore" class="store-input">
+              <option value="">Pilih Store</option>
+              <option value="CITYWALK">CITYWALK</option>
+              <option value="CITRA TOWER">CITRA TOWER</option>
+              <option value="MENTENG">MENTENG</option>
+            </select>
           </div>
           <div class="field">
             <label>DINE IN</label>
@@ -566,8 +567,13 @@ tr:last-child td{border-bottom:0}
             <input id="mtIncidentDate" type="date">
           </div>
           <div class="field">
-            <label>STORE</label>
-            <input id="mtStore" readonly>
+            <label>STORE *</label>
+            <select id="mtStore" class="store-input">
+              <option value="">Pilih Store</option>
+              <option value="CITYWALK">CITYWALK</option>
+              <option value="CITRA TOWER">CITRA TOWER</option>
+              <option value="MENTENG">MENTENG</option>
+            </select>
           </div>
           <div class="field">
             <label>KATEGORI</label>
@@ -643,8 +649,13 @@ tr:last-child td{border-bottom:0}
       <div class="card">
         <div class="form-grid">
           <div class="field">
-            <label>STORE</label>
-            <input id="kpiStore" readonly>
+            <label>STORE *</label>
+            <select id="kpiStore" class="store-input">
+              <option value="">Pilih Store</option>
+              <option value="CITYWALK">CITYWALK</option>
+              <option value="CITRA TOWER">CITRA TOWER</option>
+              <option value="MENTENG">MENTENG</option>
+            </select>
           </div>
           <div class="field">
             <label>BULAN</label>
@@ -768,8 +779,13 @@ tr:last-child td{border-bottom:0}
 
         <div class="form-grid">
           <div class="field">
-            <label>STORE</label>
-            <input id="swStore" readonly>
+            <label>STORE *</label>
+            <select id="swStore" class="store-input">
+              <option value="">Pilih Store</option>
+              <option value="CITYWALK">CITYWALK</option>
+              <option value="CITRA TOWER">CITRA TOWER</option>
+              <option value="MENTENG">MENTENG</option>
+            </select>
           </div>
           <div class="field">
             <label>TANGGAL REQUEST *</label>
@@ -900,50 +916,50 @@ function formatRupiah(n){
   }).format(Number(n)||0);
 }
 
-function storeOfUser(){
-  // Nama store untuk tampilan website.
-  return state.user?.store || '';
-}
-
-function storeApiOfUser(){
-  // Nama/store key yang dikirim ke backend/database.
-  // Backend menggunakan key resmi: CITYWALK, CITRA TOWER, MENTENG.
-  // Mendukung nama display, variasi penulisan, dan ID store.
-  const raw = String(state.user?.store || '').trim().toUpperCase();
+function canonicalStore(value){
+  const raw = String(value || '').trim().toUpperCase();
   const key = raw.replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
 
-  // MENTENG
   if(
     key === 'MENTENG' ||
     key === 'SSS MENTENG' ||
     key === 'SSS MTG' ||
-    key === 'SSS-MTG' ||
     key.includes('MENTENG')
   ) return 'MENTENG';
 
-  // CITYWALK
   if(
     key === 'CITYWALK' ||
+    key === 'CITY WALK' ||
     key === 'SKS CITYWALK' ||
     key === 'SKS CITY WALK' ||
     key === 'SKS CW' ||
-    key === 'SKS-CW' ||
     key.includes('CITYWALK') ||
     key.includes('CITY WALK')
   ) return 'CITYWALK';
 
-  // CITRA TOWER
   if(
     key === 'CITRA TOWER' ||
     key === 'SKS CITRA TOWER' ||
     key === 'SS CITRA TOWER' ||
     key === 'SKS CT' ||
-    key === 'SKS-CT' ||
     key.includes('CITRA TOWER')
   ) return 'CITRA TOWER';
 
   return raw;
 }
+
+function selectedStore(id){
+  return canonicalStore($(id)?.value || '');
+}
+
+function storeOfUser(){
+  return state.user?.store || 'ALL';
+}
+
+function storeApiOfUser(){
+  return canonicalStore(state.user?.store || '');
+}
+
 
 function isAM(){
   const role = String(state.user?.role||'').toUpperCase();
@@ -1013,84 +1029,57 @@ async function apiPost(payload){
 
 
 async function login(){
-  const username = $('loginUsername').value.trim();
-  const password = $('loginPassword').value.trim();
-
-  if(!username || !password){
-    toast('Username dan password wajib diisi.');
-    return;
-  }
-
-  showLoading(true);
-  try{
-    const result = await apiPost({
-      action:'login',
-      username,
-      password
-    });
-
-    if(!result.success){
-      throw new Error(result.message||'Login gagal.');
-    }
-
-    if(String(result.user?.role||'').toUpperCase() !== 'STORE'){
-      throw new Error('Website ini khusus untuk akun STORE.');
-    }
-
-    state.user = result.user;
-    sessionStorage.setItem('WT_AM_USER',JSON.stringify(state.user));
-
-    $('loginView').classList.add('hidden');
-    $('appView').classList.remove('hidden');
-
-    initAfterLogin();
-    toast('Login berhasil.');
-  }catch(err){
-    toast(err.message);
-  }finally{
-    showLoading(false);
-  }
+  initPublicPortal();
 }
+
 
 function logout(){
-  sessionStorage.removeItem('WT_AM_USER');
-  state.user=null;
-  $('appView').classList.add('hidden');
-  $('loginView').classList.remove('hidden');
+  initPublicPortal();
 }
+
 
 function initAfterLogin(){
-  const u = state.user;
-  $('userPill').textContent =
-    `${u.nama||u.username} · ${u.role||'USER'}${u.store && u.store!=='ALL' ? ' · '+u.store : ''}`;
+  initPublicPortal();
+}
 
-  const store = storeOfUser();
+function initPublicPortal(){
+  state.user = {
+    username:'PUBLIC',
+    nama:'PUBLIC USER',
+    role:'STORE',
+    store:'ALL'
+  };
 
-  if($('dashboardStoreFilter')){
-    $('dashboardStoreFilter').value = 'ALL';
+  $('loginView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+
+  $('userPill').textContent = 'PUBLIC STORE PORTAL';
+
+  ['salesStore','mtStore','kpiStore','swStore'].forEach(function(id){
+    if($(id)) $(id).value='';
+  });
+
+  if($('dashboardStoreFilter')) $('dashboardStoreFilter').value='ALL';
+
+  const d=todayISO();
+  if($('salesDate')) $('salesDate').value=d;
+  if($('mtInputDate')) $('mtInputDate').value=d;
+  if($('mtIncidentDate')) $('mtIncidentDate').value=d;
+  if($('swDate')) $('swDate').value=d;
+  if($('kpiYear')) $('kpiYear').value=new Date().getFullYear();
+
+  if($('kpiMonth')){
+    $('kpiMonth').value =
+      new Intl.DateTimeFormat('en-US',{month:'long'}).format(new Date()).toUpperCase();
   }
 
-  $('welcomeTitle').textContent = 'Dashboard Semua Store';
-
-  $('welcomeSub').textContent =
-    'Ringkasan data CITYWALK, CITRA TOWER, dan MENTENG. Semua akun Store dapat melihat keseluruhan data.';
-
-  $('salesStore').value = store;
-  $('mtStore').value = store;
-  $('kpiStore').value = store;
-
-  const d = todayISO();
-  $('salesDate').value = d;
-  $('mtInputDate').value = d;
-  $('mtIncidentDate').value = d;
-  $('kpiYear').value = new Date().getFullYear();
-
-  $('kpiMonth').value =
-    new Intl.DateTimeFormat('en-US',{month:'long'}).format(new Date()).toUpperCase();
+  $('welcomeTitle').textContent='Dashboard Semua Store';
+  $('welcomeSub').textContent=
+    'Pilih Store pada dashboard untuk melihat data per Store. Semua data tetap terpisah dan Sales tidak digabungkan.';
 
   showPage('dashboard');
-  loadDashboard();
 }
+
 
 function showPage(page){
   document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
@@ -1102,10 +1091,10 @@ function showPage(page){
   });
 
   if(page==='dashboard') loadDashboard();
-  if(page==='sales'){ $('salesDate').value=todayISO(); $('salesStore').value=storeOfUser(); loadSalesHistory(); }
+  if(page==='sales'){ $('salesDate').value=todayISO(); loadSalesHistory(); }
   if(page==='waste'){ initWastePage(); loadWasteHistory(); }
-  if(page==='maintenance'){ $('mtStore').value=storeOfUser(); loadMaintenanceHistory(); }
-  if(page==='kpi'){ $('kpiStore').value=storeOfUser(); loadKPIHistory(); }
+  if(page==='maintenance'){ loadMaintenanceHistory(); }
+  if(page==='kpi'){ loadKPIHistory(); }
   if(page==='walkthrough') initWalkthrough();
   if(page==='smallware') initSmallware();
   if(page==='waste') initWastePage();
@@ -1511,24 +1500,24 @@ function updateSalesTotal(){
 }
 
 async function saveSales(){
+  const targetStore=selectedStore('salesStore');
+  if(!targetStore){
+    toast('Pilih Store terlebih dahulu.');
+    return;
+  }
   try{
     const payload={
       action:'saveSales',
       tanggal:$('salesDate').value,
-      store:storeApiOfUser(),
+      store:targetStore,
       dineIn:num('salesDineIn'),
       delivery:num('salesDelivery'),
       takeAway:num('salesTakeAway'),
       connectBO:num('salesConnect'),
       tips:num('salesTips'),
       keterangan:$('salesNote').value.trim(),
-      inputBy:state.user?.username||''
+      inputBy:'PUBLIC USER'
     };
-
-    if(isAM()){
-      toast('Input Sales dari akun AM membutuhkan store tujuan. Modul AM multi-store akan kita aktifkan pada versi berikutnya.');
-      return;
-    }
 
     showLoading(true);
     const r=await apiPost(payload);
@@ -1558,7 +1547,7 @@ async function saveWaste(){
     const payload={
       action:'saveWaste',
       tanggal:$('wasteDate').value,
-      store:storeApiOfUser(),
+      store:targetStore,
       kategori:$('wasteCategory').value.trim(),
       itemId:$('wasteItemId').value.trim(),
       namaItem:$('wasteItemName').value.trim(),
@@ -1566,7 +1555,7 @@ async function saveWaste(){
       qty:num('wasteQty'),
       alasan:$('wasteReason').value.trim(),
       keterangan:$('wasteNote').value.trim(),
-      inputBy:state.user?.username||''
+      inputBy:'PUBLIC USER'
     };
 
     if(file){
@@ -1591,8 +1580,9 @@ function resetWaste(){
 
 /* MAINTENANCE */
 async function saveMaintenance(){
-  if(isAM()){
-    toast('Untuk V1, pembuatan ticket memakai akun store. Fitur AM membuat ticket lintas store kita aktifkan setelah login dasar stabil.');
+  const targetStore=selectedStore('mtStore');
+  if(!targetStore){
+    toast('Pilih Store terlebih dahulu.');
     return;
   }
 
@@ -1702,8 +1692,9 @@ function clearMaintenanceForm(){
 
 /* KPI */
 async function saveKPI(){
-  if(isAM()){
-    toast('Upload KPI versi V1 digunakan oleh akun store. AM melihat status upload pada dashboard.');
+  const targetStore=selectedStore('kpiStore');
+  if(!targetStore){
+    toast('Pilih Store terlebih dahulu.');
     return;
   }
 
@@ -1717,13 +1708,13 @@ async function saveKPI(){
     showLoading(true);
     const payload={
       action:'saveKPI',
-      store:storeApiOfUser(),
+      store:targetStore,
       bulan:$('kpiMonth').value,
       tahun:$('kpiYear').value,
       keterangan:$('kpiNote').value.trim(),
-      uploadBy:state.user?.username||'',
+      uploadBy:'PUBLIC USER',
       photo:await fileToDataURL(file),
-      fileName:'KPI_'+safeName(storeApiOfUser())+'_'+$('kpiMonth').value+'_'+$('kpiYear').value+'_'+Date.now()+'.jpg',
+      fileName:'KPI_'+safeName(targetStore)+'_'+$('kpiMonth').value+'_'+$('kpiYear').value+'_'+Date.now()+'.jpg',
       mimeType:file.type||'image/jpeg'
     };
 
@@ -2164,7 +2155,7 @@ function initSmallware(){
 
   $('swHeroSub').textContent = am
     ? 'Menampilkan request Smallware seluruh store. AM/ADMIN dapat melakukan approval dan update status.'
-    : `Menampilkan request Smallware ${storeOfUser()}. Store hanya dapat membuat request dan melihat history store sendiri.`;
+    : `Menampilkan request Smallware ${storeOfUser()}. Semua pengguna dapat melihat seluruh history. Input request dilakukan dengan memilih Store.`;
 
   $('swHistoryNote').textContent = am
     ? 'AM/ADMIN: seluruh store dapat dilihat dan request PENDING dapat di-APPROVE / REJECT.'
@@ -2499,8 +2490,8 @@ async function saveSmallwareRequestUI(){
     const result = await apiPost({
       action:'saveSmallwareRequest',
       role:state.user.role || 'STORE',
-      store:isAM() ? $('swStore').value : storeApiOfUser(),
-      userStore:storeApiOfUser(),
+      store:targetStore,
+      userStore:targetStore,
       tanggalRequest:$('swDate').value || todayISO(),
       namaSmallware:name,
       qtyRequest:qty,
@@ -2508,7 +2499,7 @@ async function saveSmallwareRequestUI(){
       fotoKerusakan:photo,
       mimeType:mimeType,
       keterangan:$('swNote').value.trim(),
-      inputBy:state.user.nama || state.user.username || ''
+      inputBy:'PUBLIC USER'
     });
 
     toast(`Request berhasil dibuat: ${result.idRequest||''}`);
@@ -2655,18 +2646,10 @@ function compressSmallwareImage(file){
 }
 
 
-/* AUTO RESTORE LOGIN */
-(function(){
-  try{
-    const saved=sessionStorage.getItem('WT_AM_USER');
-    if(saved){
-      state.user=JSON.parse(saved);
-      $('loginView').classList.add('hidden');
-      $('appView').classList.remove('hidden');
-      initAfterLogin();
-    }
-  }catch(e){}
-})();
+/* PUBLIC STORE PORTAL - NO LOGIN */
+document.addEventListener('DOMContentLoaded', function(){
+  initPublicPortal();
+});
 </script>
 </body>
 </html>
