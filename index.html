@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+  <!-- SYSTEM AREA RENALDI V11: PUBLIC ALL-STORE HISTORY FIX -->
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SYSTEM AREA RENALDI</title>
 <style>
@@ -532,7 +533,7 @@ tr:last-child td{border-bottom:0}
         </div>
       </div>
 
-      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Waste</h3><div class="small">Seluruh history Waste semua Store dari Waste Control untuk store ini.</div></div><button class="btn btn-light" onclick="loadWasteHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>PERIODE</th><th>KODE</th><th>NAMA BARANG</th><th>SATUAN</th><th>TOTAL WASTE</th><th>STORE</th></tr></thead><tbody id="wasteHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Waste</h3><div class="small">Seluruh history Waste semua Store dari Waste Control.</div></div><button class="btn btn-light" onclick="loadWasteHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>PERIODE</th><th>KODE</th><th>NAMA BARANG</th><th>SATUAN</th><th>TOTAL WASTE</th><th>STORE</th></tr></thead><tbody id="wasteHistoryBody"></tbody></table></div></div>
 
       <div class="card" style="margin-top:16px">
         <div class="card-head">
@@ -637,7 +638,7 @@ tr:last-child td{border-bottom:0}
         </div>
         <div id="maintenanceResult" style="margin-top:14px"></div>
       </div>
-      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance Semua Store</h3><div class="small">Seluruh ticket Maintenance store ini.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance Semua Store</h3><div class="small">Seluruh ticket Maintenance semua Store.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-kpi" class="page-section hidden">
@@ -685,7 +686,7 @@ tr:last-child td{border-bottom:0}
         <button class="btn btn-purple" onclick="saveKPI()">Upload KPI</button>
       </div>
 
-      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History KPI Semua Store</h3><div class="small">Seluruh history upload KPI store ini.</div></div><button class="btn btn-light" onclick="loadKPIHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:900px"><thead><tr><th>TIMESTAMP</th><th>BULAN</th><th>TAHUN</th><th>TGL UPLOAD</th><th>KETERANGAN</th><th>FILE</th><th>UPLOAD BY</th></tr></thead><tbody id="kpiHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History KPI Semua Store</h3><div class="small">Seluruh history upload KPI semua Store.</div></div><button class="btn btn-light" onclick="loadKPIHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:900px"><thead><tr><th>TIMESTAMP</th><th>BULAN</th><th>TAHUN</th><th>TGL UPLOAD</th><th>KETERANGAN</th><th>FILE</th><th>UPLOAD BY</th></tr></thead><tbody id="kpiHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-walkthrough" class="page-section hidden">
@@ -1126,7 +1127,7 @@ async function loadDashboard(){
     // Waste dashboard mengikuti pilihan dashboard.
     const wasteResult = await apiGet('wasteDashboard',{
       store: selected === 'ALL' ? 'ALL' : selected,
-      role: 'STORE',
+      role: 'PUBLIC',
       userStore: ''
     });
 
@@ -1153,7 +1154,7 @@ async function loadSmallwareDashboardMini(selectedStore='ALL'){
     const result = await apiGet('smallware',{
       store: selectedStore === 'ALL' ? '' : selectedStore,
       limit: 20,
-      role: 'STORE'
+      role: 'PUBLIC'
     });
 
     const rows = result.data || [];
@@ -1373,7 +1374,7 @@ async function loadExternalWasteDashboard(updateMainDashboard=false){
     const store = ($('wtWasteStore')?.value) || 'ALL';
     const result = await apiGet('wasteDashboard',{
       store,
-      role:'STORE',
+      role:'PUBLIC',
       userStore:''
     });
 
@@ -1480,10 +1481,10 @@ function renderWasteLatest(rows){
 /* =========================================================
    HISTORY STORE - SEMUA MENU
 ========================================================= */
-async function loadSalesHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'sales',store:'',role:'PUBLIC',limit:5000});const rows=r.data||[];$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${formatRupiah(x.delivery)}</td><td>${formatRupiah(x.takeAway)}</td><td>${formatRupiah(x.connectBO)}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
-async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:'ALL',role:'STORE',userStore:'',limit:5000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
-async function loadMaintenanceHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'maintenance',store:'',role:'PUBLIC',limit:5000});const rows=r.data||[];$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance Semua Store: '+err.message)}}
-async function loadKPIHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'kpi',store:'',role:'PUBLIC',limit:5000});const rows=r.data||[];$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI Semua Store: '+err.message)}}
+async function loadSalesHistory(){if(!state.user)return;try{const r=await apiGet('historyAll',{module:'sales',limit:5000});const rows=r.data||[];$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${formatRupiah(x.delivery)}</td><td>${formatRupiah(x.takeAway)}</td><td>${formatRupiah(x.connectBO)}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
+async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
+async function loadMaintenanceHistory(){if(!state.user)return;try{const r=await apiGet('historyAll',{module:'maintenance',limit:5000});const rows=r.data||[];$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance Semua Store: '+err.message)}}
+async function loadKPIHistory(){if(!state.user)return;try{const r=await apiGet('historyAll',{module:'kpi',limit:5000});const rows=r.data||[];$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI Semua Store: '+err.message)}}
 
 /* SALES */
 ['salesDineIn','salesDelivery','salesTakeAway','salesConnect','salesTips'].forEach(id=>{
@@ -1810,7 +1811,7 @@ async function loadWalkthrough(){
 
     const params = {
       limit: 5000,
-      role:'STORE',
+      role:'PUBLIC',
       userStore:'',
       store:selectedStore
     };
@@ -1890,7 +1891,7 @@ async function viewWalkthroughDetail(id){
     showLoading(true);
     const r = await apiGet('walkthrough',{
       id:id,
-      role:'STORE',
+      role:'PUBLIC',
       userStore:''
     });
 
@@ -2159,7 +2160,7 @@ function initSmallware(){
 
   $('swHistoryNote').textContent = am
     ? 'AM/ADMIN: seluruh store dapat dilihat dan request PENDING dapat di-APPROVE / REJECT.'
-    : `STORE: hanya history ${storeOfUser()} yang dapat dilihat.`;
+    : `Semua pengguna dapat melihat history Smallware semua Store.`;
 
   loadSmallware();
 }
@@ -2173,9 +2174,9 @@ async function loadSmallware(){
     const result = await apiGet('smallware',{
       // Backend/database menggunakan canonical store key.
       // Tampilan user tetap memakai nama store asli.
-      store: isAM() ? '' : storeApiOfUser(),
+      store: '',
       limit: 1000,
-      role: state.user.role || 'STORE'
+      role: 'PUBLIC'
     });
 
     smallwareRows = result.data || [];
@@ -2196,7 +2197,7 @@ async function loadSmallwareFrequency(){
 
     const result = await apiGet('smallwareFrequency',{
       store:'',
-      role:'STORE'
+      role:'PUBLIC'
     });
 
     smallwareFrequencyRows = result.data || [];
