@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>WT AM Area Renaldi - Frontend V6.3</title>
+<title>WT AM Area Renaldi - Store Portal V6 ALL STORE VIEW</title>
 <style>
 :root{
   --bg:#f5f7fb;
@@ -283,7 +283,7 @@ tr:last-child td{border-bottom:0}
 
     <div class="store-only-note">
       🔐 <b>STORE PORTAL</b> — Login menggunakan akun Store masing-masing.
-      Data tersimpan di database pusat WT AM Area Renaldi.
+      Semua akun Store dapat melihat data seluruh store. Input tetap tercatat sesuai store yang login.
     </div>
 
     <section id="page-dashboard" class="page-section">
@@ -312,6 +312,30 @@ tr:last-child td{border-bottom:0}
           <div class="icon">📊</div>
           <div class="label">KPI UPLOAD</div>
           <div id="statKpi" class="value">0</div>
+        </div>
+      </div>
+
+      <div class="card" id="allStoreDashboardCard" style="margin-bottom:16px">
+        <div class="card-head">
+          <div>
+            <h3>🏪 Ringkasan Semua Store</h3>
+            <div class="small">Seluruh akun Store dapat melihat data CITYWALK, CITRA TOWER, dan MENTENG.</div>
+          </div>
+          <button class="btn btn-light" onclick="loadDashboard()">↻ Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width:900px">
+            <thead>
+              <tr>
+                <th>STORE</th>
+                <th>TOTAL SALES</th>
+                <th>WASTE QTY</th>
+                <th>MAINTENANCE OPEN</th>
+                <th>KPI UPLOAD</th>
+              </tr>
+            </thead>
+            <tbody id="allStoreDashboardBody"></tbody>
+          </table>
         </div>
       </div>
 
@@ -1025,15 +1049,12 @@ function initAfterLogin(){
   $('userPill').textContent =
     `${u.nama||u.username} · ${u.role||'USER'}${u.store && u.store!=='ALL' ? ' · '+u.store : ''}`;
 
-  const store = isAM() ? 'ALL STORE' : storeOfUser();
+  const store = storeOfUser();
 
-  $('welcomeTitle').textContent =
-    isAM() ? 'Dashboard Area Manager' : `Dashboard ${store}`;
+  $('welcomeTitle').textContent = 'Dashboard Semua Store';
 
   $('welcomeSub').textContent =
-    isAM()
-      ? 'Ringkasan CityWalk, Citra Tower, dan Menteng.'
-      : `Ringkasan aktivitas ${store}.`;
+    'Ringkasan data CITYWALK, CITRA TOWER, dan MENTENG. Semua akun Store dapat melihat keseluruhan data.';
 
   $('salesStore').value = store;
   $('mtStore').value = store;
@@ -1074,22 +1095,31 @@ function showPage(page){
 async function loadDashboard(){
   showLoading(true);
   try{
-    if(isAM()){
-      const result = await apiGet('amDashboard');
-      renderAMDashboard(result.data||[]);
-    }else{
-      const result = await apiGet('dashboard',{store:storeApiOfUser()});
-      state.dashboard=result;
-      renderStoreDashboard(result);
-    }
+    // Dashboard selalu mengambil ringkasan ALL STORE.
+    const result = await apiGet('amDashboard');
+    state.dashboard = result;
+    renderAMDashboard(result.data || []);
 
+    // Maintenance terbaru juga ALL STORE.
     const recent = await apiGet('recentMaintenance',{
-      store:isAM()?'':storeApiOfUser(),
-      limit:5
+      store:'',
+      limit:20
     });
     renderRecentMaintenance(recent.data||[]);
+
+    // Smallware mini = ALL STORE.
     await loadSmallwareDashboardMini();
-    await loadExternalWasteDashboard(true);
+
+    // Waste dashboard = ALL STORE.
+    const wasteResult = await apiGet('wasteDashboard',{
+      store:'ALL',
+      role:'STORE',
+      userStore:''
+    });
+    if(wasteResult && wasteResult.success){
+      $('statWaste').textContent = Number(wasteResult.summary?.totalWaste||0)
+        .toLocaleString('id-ID',{maximumFractionDigits:2});
+    }
   }catch(err){
     toast(err.message);
   }finally{
@@ -1103,9 +1133,9 @@ async function loadSmallwareDashboardMini(){
 
   try{
     const result = await apiGet('smallware',{
-      store:isAM() ? '' : storeApiOfUser(),
-      limit:5,
-      role:state.user.role || 'STORE'
+      store:'',
+      limit:20,
+      role:'STORE'
     });
     const rows = result.data || [];
 
@@ -1152,9 +1182,9 @@ function renderStoreDashboard(d){
 }
 
 function renderAMDashboard(rows){
-  $('amStoreCards').classList.remove('hidden');
+  const data = Array.isArray(rows) ? rows : [];
 
-  const totals = rows.reduce((a,r)=>{
+  const totals = data.reduce((a,r)=>{
     a.sales += Number(r.sales?.totalSales||0);
     a.waste += Number(r.waste?.totalQty||0);
     a.open += Number(r.maintenance?.open||0);
@@ -1167,28 +1197,35 @@ function renderAMDashboard(rows){
   $('statMaintenance').textContent = totals.open;
   $('statKpi').textContent = totals.kpi;
 
-  $('amCards').innerHTML = rows.map(r=>`
-    <div class="card" style="box-shadow:none;background:#fbfcfe">
-      <h3>🏪 ${escapeHtml(r.store)}</h3>
-      <div class="small">Sales</div>
-      <div style="font-size:20px;font-weight:800">${formatRupiah(r.sales?.totalSales)}</div>
-      <div style="margin-top:10px" class="small">Waste</div>
-      <div>${Number(r.waste?.totalQty||0).toLocaleString('id-ID')}</div>
-      <div style="margin-top:10px" class="small">Maintenance Open</div>
-      <div>${Number(r.maintenance?.open||0)}</div>
-      <div style="margin-top:10px" class="small">KPI Upload</div>
-      <div>${Number(r.kpi?.uploadCount||0)}</div>
-    </div>
-  `).join('');
+  const body = $('allStoreDashboardBody');
+  if(!body) return;
 
-  $('kpiMini').innerHTML = rows.map(r=>`
-    <div class="kpi-status">
-      <span><b>${escapeHtml(r.store)}</b></span>
-      <span class="badge ${r.kpi?.uploadCount ? 'badge-done':'badge-open'}">
-        ${r.kpi?.uploadCount ? '✓ UPLOADED':'BELUM UPLOAD'}
-      </span>
-    </div>
-  `).join('');
+  body.innerHTML = data.length
+    ? data.map(r=>`
+        <tr>
+          <td><b>${escapeHtml(r.store||'-')}</b></td>
+          <td>${formatRupiah(r.sales?.totalSales)}</td>
+          <td>${Number(r.waste?.totalQty||0).toLocaleString('id-ID')}</td>
+          <td>${Number(r.maintenance?.open||0)}</td>
+          <td>
+            <span class="badge ${r.kpi?.uploadCount ? 'badge-done':'badge-open'}">
+              ${r.kpi?.uploadCount ? '✓ '+r.kpi.uploadCount+' UPLOAD':'BELUM UPLOAD'}
+            </span>
+          </td>
+        </tr>
+      `).join('')
+    : '<tr><td colspan="5" class="empty">Belum ada data store.</td></tr>';
+
+  $('kpiMini').innerHTML = data.length
+    ? data.map(r=>`
+        <div class="kpi-status">
+          <span><b>${escapeHtml(r.store||'-')}</b></span>
+          <span class="badge ${r.kpi?.uploadCount ? 'badge-done':'badge-open'}">
+            ${r.kpi?.uploadCount ? '✓ UPLOADED':'BELUM UPLOAD'}
+          </span>
+        </div>
+      `).join('')
+    : '<div class="empty">Belum ada data KPI.</div>';
 }
 
 function renderRecentMaintenance(rows){
@@ -1237,28 +1274,24 @@ function initWastePage(){
   const select = $('wtWasteStore');
   if(!select) return;
 
-  if(isAM()){
-    select.innerHTML = `
-      <option value="">ALL STORE</option>
-      <option value="CITYWALK">CITYWALK</option>
-      <option value="CITRA TOWER">CITRA TOWER</option>
-      <option value="MENTENG">MENTENG</option>`;
-  }else{
-    select.innerHTML = `<option value="${escapeAttr(storeOfUser())}">${escapeHtml(storeOfUser())}</option>`;
-  }
+  select.innerHTML = `
+    <option value="ALL">ALL STORE</option>
+    <option value="CITYWALK">CITYWALK</option>
+    <option value="CITRA TOWER">CITRA TOWER</option>
+    <option value="MENTENG">MENTENG</option>`;
 
-  select.value = isAM() ? (select.value || '') : storeOfUser();
+  select.value = select.value || 'ALL';
   loadWasteDashboard();
 }
 
 async function loadExternalWasteDashboard(updateMainDashboard=false){
   if(!state.user) return;
   try{
-    const store = isAM() ? (($('wtWasteStore')?.value)||'') : storeApiOfUser();
+    const store = ($('wtWasteStore')?.value) || 'ALL';
     const result = await apiGet('wasteDashboard',{
       store,
-      role:state.user.role || 'STORE',
-      userStore:storeApiOfUser()
+      role:'STORE',
+      userStore:''
     });
 
     if(!result || !result.success) throw new Error(result?.message||'Waste gagal dimuat.');
@@ -1364,10 +1397,10 @@ function renderWasteLatest(rows){
 /* =========================================================
    HISTORY STORE - SEMUA MENU
 ========================================================= */
-async function loadSalesHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'sales',store:storeApiOfUser(),role:'STORE',limit:1000});const rows=r.data||[];$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${formatRupiah(x.delivery)}</td><td>${formatRupiah(x.takeAway)}</td><td>${formatRupiah(x.connectBO)}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="9" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
-async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:storeApiOfUser(),role:'STORE',userStore:storeApiOfUser(),limit:1000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
-async function loadMaintenanceHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'maintenance',store:storeApiOfUser(),role:'STORE',limit:1000});const rows=r.data||[];$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance: '+err.message)}}
-async function loadKPIHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'kpi',store:storeApiOfUser(),role:'STORE',limit:1000});const rows=r.data||[];$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI: '+err.message)}}
+async function loadSalesHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'sales',store:'',role:'STORE',limit:5000});const rows=r.data||[];$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${formatRupiah(x.delivery)}</td><td>${formatRupiah(x.takeAway)}</td><td>${formatRupiah(x.connectBO)}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="9" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
+async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:'ALL',role:'STORE',userStore:'',limit:5000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
+async function loadMaintenanceHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'maintenance',store:'',role:'STORE',limit:5000});const rows=r.data||[];$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance: '+err.message)}}
+async function loadKPIHistory(){if(!state.user)return;try{const r=await apiGet('history',{module:'kpi',store:'',role:'STORE',limit:5000});const rows=r.data||[];$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI: '+err.message)}}
 
 /* SALES */
 ['salesDineIn','salesDelivery','salesTakeAway','salesConnect','salesTips'].forEach(id=>{
@@ -1669,28 +1702,19 @@ function initWalkthrough(){
   const filter = $('walkthroughStoreFilter');
 
   if(filter){
-    if(am){
-      filter.innerHTML = `
-        <option value="">ALL STORE</option>
-        <option value="CITYWALK">CITYWALK</option>
-        <option value="CITRA TOWER">CITRA TOWER</option>
-        <option value="MENTENG">MENTENG</option>`;
-      filter.disabled = false;
-    }else{
-      const ownStore = storeOfUser();
-      filter.innerHTML = `<option value="${escapeAttr(ownStore)}">${escapeHtml(ownStore)}</option>`;
-      filter.value = ownStore;
-      filter.disabled = true;
-    }
+    filter.innerHTML = `
+      <option value="">ALL STORE</option>
+      <option value="CITYWALK">CITYWALK</option>
+      <option value="CITRA TOWER">CITRA TOWER</option>
+      <option value="MENTENG">MENTENG</option>`;
+    filter.disabled = false;
   }
 
-  $('walkthroughAccessNote').textContent = am
-    ? 'AM/ADMIN: pilih store untuk melihat hasil Walkthrough. Data input berasal dari website Walkthrough GitHub.'
-    : `STORE: hanya dapat melihat hasil Walkthrough ${storeOfUser()} (VIEW ONLY).`;
+  $('walkthroughAccessNote').textContent =
+    'Semua akun Store dapat melihat seluruh history Walkthrough. Data input tetap berasal dari website Walkthrough GitHub.';
 
-  $('walkthroughHeroSub').textContent = am
-    ? 'Seluruh history Walkthrough dari website Walkthrough GitHub. Store hanya dapat melihat temuan dan tindak lanjut.'
-    : `Hasil Walkthrough ${storeOfUser()} — mode lihat saja.`;
+  $('walkthroughHeroSub').textContent =
+    'Seluruh history Walkthrough dari semua store — VIEW ONLY.';
 
   loadWalkthrough();
 }
@@ -1701,9 +1725,9 @@ async function loadWalkthrough(){
 
     const params = {
       limit: 5000,
-      role: isAM() ? (state.user?.role || 'AM') : 'STORE',
-      userStore: isAM() ? '' : storeApiOfUser(),
-      store: isAM() ? selectedStore : storeApiOfUser()
+      role:'STORE',
+      userStore:'',
+      store:selectedStore
     };
 
     showLoading(true);
@@ -1781,8 +1805,8 @@ async function viewWalkthroughDetail(id){
     showLoading(true);
     const r = await apiGet('walkthrough',{
       id:id,
-      role:isAM() ? (state.user?.role || 'AM') : 'STORE',
-      userStore:isAM() ? '' : storeApiOfUser()
+      role:'STORE',
+      userStore:''
     });
 
     if(!r.data){
@@ -2086,9 +2110,8 @@ async function loadSmallwareFrequency(){
     showLoading(true);
 
     const result = await apiGet('smallwareFrequency',{
-      // Frequency juga harus menggunakan canonical store key.
-      store: isAM() ? '' : storeApiOfUser(),
-      role: state.user.role || 'STORE'
+      store:'',
+      role:'STORE'
     });
 
     smallwareFrequencyRows = result.data || [];
