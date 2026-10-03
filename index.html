@@ -1135,6 +1135,10 @@ async function loadDashboard(){
       renderDashboardWasteSummary(wasteResult, selected);
     }
 
+    // History Sales juga berada di Dashboard, jadi wajib dimuat saat Dashboard dibuka.
+    // Data tetap seluruh Store dan tidak digabung.
+    await loadSalesHistory();
+
   }catch(err){
     toast(err.message);
   }finally{
