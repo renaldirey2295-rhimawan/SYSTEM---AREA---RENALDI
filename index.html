@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>System Area Renaldi - Frontend V6.3</title>
+<title>WT AM Area Renaldi - Frontend V6.3</title>
 <style>
 :root{
   --bg:#f5f7fb;
@@ -233,7 +233,7 @@ tr:last-child td{border-bottom:0}
 <div id="loginView" class="login-wrap">
   <div class="login-card">
     <div class="logo">🧭</div>
-    <h2>System Area Renaldi</h2>
+    <h2>WT AM Area Renaldi</h2>
     <p>Control Store Area · Login Sistem</p>
 
     <div class="field">
@@ -259,7 +259,7 @@ tr:last-child td{border-bottom:0}
     <div class="brand">
       <div class="logo">🧭</div>
       <div>
-        <h1></h1>System Area Renaldi</h1>
+        <h1>WT AM Area Renaldi</h1>
         <small>STORE OPERATION SYSTEM</small>
       </div>
     </div>
@@ -2062,7 +2062,9 @@ async function loadSmallware(){
     showLoading(true);
 
     const result = await apiGet('smallware',{
-      store: isAM() ? '' : storeOfUser(),
+      // Backend/database menggunakan canonical store key.
+      // Tampilan user tetap memakai nama store asli.
+      store: isAM() ? '' : storeApiOfUser(),
       limit: 1000,
       role: state.user.role || 'STORE'
     });
@@ -2084,7 +2086,8 @@ async function loadSmallwareFrequency(){
     showLoading(true);
 
     const result = await apiGet('smallwareFrequency',{
-      store: isAM() ? '' : storeOfUser(),
+      // Frequency juga harus menggunakan canonical store key.
+      store: isAM() ? '' : storeApiOfUser(),
       role: state.user.role || 'STORE'
     });
 
