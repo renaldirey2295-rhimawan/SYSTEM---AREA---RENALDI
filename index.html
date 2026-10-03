@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-  <!-- SYSTEM AREA RENALDI V11: PUBLIC ALL-STORE HISTORY FIX -->
+  <!-- SYSTEM AREA RENALDI V14: MOBILE TABLE UI FIX ONLY. FUNCTIONAL CODE FROZEN. -->
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SYSTEM AREA RENALDI</title>
 <style>
@@ -28,6 +28,10 @@
   --radius:18px;
 }
 *{box-sizing:border-box}
+html,body{
+  max-width:100%;
+  overflow-x:hidden;
+}
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
@@ -124,11 +128,26 @@ textarea{min-height:90px;resize:vertical}
 .card{
   background:#fff;border:1px solid var(--line);border-radius:18px;
   padding:18px;box-shadow:var(--shadow);
+  min-width:0;
+  max-width:100%;
 }
 .card h3{margin:0 0 14px;font-size:17px}
 .card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
-table{width:100%;border-collapse:collapse;min-width:650px}
+.table-wrap{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:650px;
+}
 th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
 th{background:#eef4fb;color:#41556b;position:sticky;top:0;z-index:1}
 tr:last-child td{border-bottom:0}
@@ -194,17 +213,23 @@ tr:last-child td{border-bottom:0}
   .grid{grid-template-columns:1fr}
 }
 @media(max-width:600px){
-  .page{padding:14px}
+  .page{padding:14px;min-width:0;max-width:100%;overflow-x:hidden}
+  .page-section{min-width:0;max-width:100%}
   .topbar{padding:11px 13px}
   .brand h1{font-size:15px}
   .brand small{font-size:10px}
   .userpill{display:none}
-  .stats{grid-template-columns:repeat(2,1fr);gap:10px}
-  .stat{padding:14px;min-height:105px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:10px;min-width:0;max-width:100%}
+  .stat{padding:14px;min-height:105px;min-width:0}
   .stat .value{font-size:18px}
-  .form-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr;min-width:0}
   .form-grid .full-row{grid-column:auto}
-  .hero{padding:18px}
+  .hero{padding:18px;min-width:0;max-width:100%}
+  .grid{min-width:0;max-width:100%}
+  .grid > .card{min-width:0;max-width:100%}
+  .table-wrap{width:100%;max-width:100%;min-width:0;display:block;overflow-x:auto;overflow-y:hidden}
+  .table-wrap table{width:max-content;min-width:700px}
+  .table-wrap th,.table-wrap td{white-space:nowrap}
 }
 </style>
 
