@@ -837,71 +837,54 @@ tr:last-child td{border-bottom:0}
     <section id="page-soldout" class="page-section hidden">
       <div class="hero">
         <h2>🚫 Rekap Sold Out</h2>
-        <p>Rekap item yang mengalami Sold Out berdasarkan HISTORY BASE.</p>
+        <p>Rekap item yang mengalami sold out berulang berdasarkan Store, tanggal, kode material, dan nama barang.</p>
       </div>
 
       <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <div>
+            <h3>🔎 Filter Rekap Sold Out</h3>
+            <div class="small">Sumber data: HISTORY BASE. Data dikelompokkan berdasarkan Store + Kode Material.</div>
+          </div>
+          <button class="btn btn-light" onclick="loadSoldOutSummary()">↻ Refresh</button>
+        </div>
         <div class="form-grid">
           <div class="field">
             <label>STORE</label>
-            <select id="soldoutStore" class="store-input">
+            <select id="soldOutStore">
               <option value="ALL">ALL STORE</option>
+              <option value="MENTENG">MENTENG</option>
               <option value="CITYWALK">CITYWALK</option>
               <option value="CITRA TOWER">CITRA TOWER</option>
-              <option value="MENTENG">MENTENG</option>
             </select>
           </div>
           <div class="field">
             <label>DARI TANGGAL</label>
-            <input id="soldoutFrom" type="date">
+            <input id="soldOutFrom" type="date">
           </div>
           <div class="field">
             <label>SAMPAI TANGGAL</label>
-            <input id="soldoutTo" type="date">
+            <input id="soldOutTo" type="date">
           </div>
-          <div class="field" style="display:flex;align-items:flex-end;gap:8px">
-            <button class="btn btn-primary" onclick="loadSoldOut()">🔎 Tampilkan</button>
-            <button class="btn btn-light" onclick="resetSoldOutFilter()">↻ Reset</button>
-          </div>
-        </div>
-        <div class="small" style="margin-top:10px">
-          Sumber: <b>HISTORY BASE</b> • Data read-only • Pengelompokan berdasarkan NAMA STORE + KODE MATERIAL.
         </div>
       </div>
 
       <div class="stats" style="margin-bottom:16px">
-        <div class="stat">
-          <div class="icon">📦</div>
-          <div class="label">ITEM SO</div>
-          <div id="soStatItems" class="value">0</div>
-        </div>
-        <div class="stat">
-          <div class="icon">📅</div>
-          <div class="label">TOTAL HARI SO</div>
-          <div id="soStatDays" class="value">0</div>
-        </div>
-        <div class="stat">
-          <div class="icon">🔴</div>
-          <div class="label">CRITICAL ≥ 7 HARI</div>
-          <div id="soStatCritical" class="value">0</div>
-        </div>
-        <div class="stat">
-          <div class="icon">🟠</div>
-          <div class="label">HIGH 4–6 HARI</div>
-          <div id="soStatHigh" class="value">0</div>
-        </div>
+        <div class="stat"><div class="icon">🚫</div><div class="label">TOTAL ITEM SO</div><div id="soStatTotal" class="value">0</div></div>
+        <div class="stat"><div class="icon">🔴</div><div class="label">CRITICAL 7+ HARI</div><div id="soStatCritical" class="value">0</div></div>
+        <div class="stat"><div class="icon">🟠</div><div class="label">HIGH 4–6 HARI</div><div id="soStatHigh" class="value">0</div></div>
+        <div class="stat"><div class="icon">🟡</div><div class="label">MONITOR 2–3 HARI</div><div id="soStatMonitor" class="value">0</div></div>
       </div>
 
       <div class="card">
         <div class="card-head">
           <div>
-            <h3>📋 Rekap Item Sold Out</h3>
-            <div id="soldoutNote" class="small">Belum ada data.</div>
+            <h3>📋 Detail Sold Out Berulang</h3>
+            <div class="small">Prioritas berdasarkan longest streak sold out.</div>
           </div>
-          <button class="btn btn-light" onclick="loadSoldOut()">↻ Refresh</button>
         </div>
-        <div id="soldoutList">
-          <div class="empty">Memuat data...</div>
+        <div id="soldOutTableWrap">
+          <div class="empty">Pilih filter lalu klik Refresh.</div>
         </div>
       </div>
     </section>
@@ -2381,71 +2364,70 @@ function resetWalkthroughForm(){
    AM/ADMIN = ALL STORE + APPROVAL + STATUS UPDATE
    ========================================================= */
 
-let soldOutRows = [];
+let smallwareRows = [];
+let smallwareFrequencyRows = [];
 
 function initSoldOut(){
-  const store = $('soldoutStore');
-  if(store && !store.value) store.value = 'ALL';
-  if($('soldoutFrom') && !$('soldoutFrom').value) $('soldoutFrom').value = '';
-  if($('soldoutTo') && !$('soldoutTo').value) $('soldoutTo').value = todayISO();
-  loadSoldOut();
+  const from = $('soldOutFrom');
+  const to = $('soldOutTo');
+  if(from && !from.value) from.value = '';
+  if(to && !to.value) to.value = todayISO();
+  loadSoldOutSummary();
 }
 
-function resetSoldOutFilter(){
-  if($('soldoutStore')) $('soldoutStore').value = 'ALL';
-  if($('soldoutFrom')) $('soldoutFrom').value = '';
-  if($('soldoutTo')) $('soldoutTo').value = todayISO();
-  loadSoldOut();
-}
+async function loadSoldOutSummary(){
+  const target = $('soldOutTableWrap');
+  if(!target) return;
 
-async function loadSoldOut(){
   try{
     showLoading(true);
+    target.innerHTML = '<div class="empty">Memuat rekap sold out...</div>';
 
-    const result = await apiGet('soldoutSummary',{
-      store: $('soldoutStore')?.value || 'ALL',
-      from: $('soldoutFrom')?.value || '',
-      to: $('soldoutTo')?.value || '',
+    const result = await apiGet('soldoutSummary', {
+      store: $('soldOutStore')?.value || 'ALL',
+      from: $('soldOutFrom')?.value || '',
+      to: $('soldOutTo')?.value || '',
       limit: 5000
     });
 
-    soldOutRows = Array.isArray(result.data) ? result.data : [];
-    renderSoldOut(result);
+    renderSoldOutSummary(result || {});
   }catch(err){
-    toast(err.message);
-    if($('soldoutList')) $('soldoutList').innerHTML =
-      '<div class="empty">Rekap Sold Out gagal dimuat.</div>';
+    target.innerHTML = `<div class="empty">Gagal memuat Rekap Sold Out: ${escapeHtml(err.message||'Unknown error')}</div>`;
+    ['soStatTotal','soStatCritical','soStatHigh','soStatMonitor'].forEach(id=>{ if($(id)) $(id).textContent='0'; });
   }finally{
     showLoading(false);
   }
 }
 
-function renderSoldOut(result){
-  const summary = result?.summary || {};
+function renderSoldOutSummary(result){
+  const rows = Array.isArray(result.rows) ? result.rows : (Array.isArray(result.data) ? result.data : []);
+  const summary = result.summary || {};
 
-  if($('soStatItems')) $('soStatItems').textContent = Number(summary.totalItems||0).toLocaleString('id-ID');
-  if($('soStatDays')) $('soStatDays').textContent = Number(summary.totalSoldOutDays||0).toLocaleString('id-ID');
-  if($('soStatCritical')) $('soStatCritical').textContent = Number(summary.critical||0).toLocaleString('id-ID');
-  if($('soStatHigh')) $('soStatHigh').textContent = Number(summary.high||0).toLocaleString('id-ID');
+  if($('soStatTotal')) $('soStatTotal').textContent = summary.totalItems ?? rows.length;
+  if($('soStatCritical')) $('soStatCritical').textContent = summary.critical ?? rows.filter(x=>x.priority==='CRITICAL').length;
+  if($('soStatHigh')) $('soStatHigh').textContent = summary.high ?? rows.filter(x=>x.priority==='HIGH').length;
+  if($('soStatMonitor')) $('soStatMonitor').textContent = summary.monitor ?? rows.filter(x=>x.priority==='MONITOR').length;
 
-  const note = $('soldoutNote');
-  if(note){
-    note.textContent = soldOutRows.length
-      ? `${soldOutRows.length} item/store ditemukan dari HISTORY BASE.`
-      : 'Tidak ada item Sold Out pada filter yang dipilih.';
-  }
-
-  const target = $('soldoutList');
+  const target = $('soldOutTableWrap');
   if(!target) return;
-
-  if(!soldOutRows.length){
-    target.innerHTML = '<div class="empty">Tidak ada data Sold Out.</div>';
+  if(!rows.length){
+    target.innerHTML = '<div class="empty">Belum ada data sold out sesuai filter.</div>';
     return;
   }
 
+  const priorityBadge = p => {
+    const map = {
+      CRITICAL:'🔴 CRITICAL',
+      HIGH:'🟠 HIGH',
+      MONITOR:'🟡 MONITOR',
+      NORMAL:'⚪ NORMAL'
+    };
+    return map[p] || p || '-';
+  };
+
   target.innerHTML = `
-    <div class="table-wrap">
-      <table style="min-width:1050px">
+    <div style="overflow:auto">
+      <table class="data-table">
         <thead>
           <tr>
             <th>PRIORITAS</th>
@@ -2453,57 +2435,26 @@ function renderSoldOut(result){
             <th>KODE MATERIAL</th>
             <th>NAMA BARANG</th>
             <th>TOTAL HARI SO</th>
-            <th>STREAK TERPANJANG</th>
-            <th>SO TERAKHIR</th>
+            <th>LONGEST STREAK</th>
             <th>PERIODE SO</th>
+            <th>SO TERAKHIR</th>
           </tr>
         </thead>
         <tbody>
-          ${soldOutRows.map(renderSoldOutRow).join('')}
+          ${rows.map(x=>`<tr>
+            <td><b>${priorityBadge(escapeHtml(x.priority||''))}</b></td>
+            <td>${escapeHtml(x.store||'-')}</td>
+            <td>${escapeHtml(x.kodeMaterial||'-')}</td>
+            <td><b>${escapeHtml(x.namaBarang||'-')}</b></td>
+            <td>${escapeHtml(String(x.totalHariSO ?? 0))}</td>
+            <td>${escapeHtml(String(x.longestStreak ?? 0))} hari</td>
+            <td>${escapeHtml(x.periodeSO||'-')}</td>
+            <td>${escapeHtml(x.soTerakhir||'-')}</td>
+          </tr>`).join('')}
         </tbody>
       </table>
     </div>`;
 }
-
-function renderSoldOutRow(row){
-  const priority = String(row.priority||'NORMAL').toUpperCase();
-  const badgeClass = priority==='CRITICAL'
-    ? 'badge-open'
-    : priority==='HIGH'
-      ? 'badge-wait'
-      : priority==='MONITOR'
-        ? 'badge-progress'
-        : 'badge-closed';
-
-  const periods = Array.isArray(row.periodeSO) ? row.periodeSO : [];
-  const periodHtml = periods.map(p => {
-    const start = formatSoldOutDate(p.start);
-    const end = formatSoldOutDate(p.end);
-    return `<div>${start}${p.start!==p.end ? ' → '+end : ''} <b>(${Number(p.days||0)} hari)</b></div>`;
-  }).join('');
-
-  return `<tr>
-    <td><span class="badge ${badgeClass}">${escapeHtml(priority)}</span></td>
-    <td><b>${escapeHtml(row.store||'-')}</b></td>
-    <td>${escapeHtml(row.kodeMaterial||'-')}</td>
-    <td><b>${escapeHtml(row.namaBarang||'-')}</b></td>
-    <td>${Number(row.totalHariSO||0).toLocaleString('id-ID')} hari</td>
-    <td><b>${Number(row.longestStreak||0).toLocaleString('id-ID')} hari</b></td>
-    <td>${formatSoldOutDate(row.soTerakhir)}</td>
-    <td>${periodHtml || '-'}</td>
-  </tr>`;
-}
-
-function formatSoldOutDate(value){
-  const s = String(value||'');
-  if(!s) return '-';
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if(!m) return escapeHtml(s);
-  return `${m[3]}/${m[2]}/${m[1]}`;
-}
-
-let smallwareRows = [];
-let smallwareFrequencyRows = [];
 
 function showSmallwareTab(tab){
   const tabs = ['request','history','frequency'];
