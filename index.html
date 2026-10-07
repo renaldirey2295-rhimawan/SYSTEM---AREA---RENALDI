@@ -231,6 +231,12 @@ tr:last-child td{border-bottom:0}
   .table-wrap table{width:max-content;min-width:700px}
   .table-wrap th,.table-wrap td{white-space:nowrap}
 }
+
+.sales-channel-field{min-width:0}
+.sales-channel-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sales-mini-label{display:block;font-size:10px;font-weight:700;color:#64748b;margin:0 0 5px;text-transform:uppercase}
+.sales-channel-inputs input{width:100%;box-sizing:border-box}
+@media(max-width:700px){.sales-channel-inputs{gap:8px}}
 </style>
 
 <style>
@@ -429,22 +435,63 @@ tr:last-child td{border-bottom:0}
               <option value="MENTENG">MENTENG</option>
             </select>
           </div>
-          <div class="field">
+
+          <div class="field sales-channel-field">
             <label>DINE IN</label>
-            <input id="salesDineIn" type="number" min="0" placeholder="0">
+            <div class="sales-channel-inputs">
+              <div>
+                <span class="sales-mini-label">SALES</span>
+                <input id="salesDineIn" type="number" min="0" placeholder="0">
+              </div>
+              <div>
+                <span class="sales-mini-label">TC</span>
+                <input id="tcDineIn" type="number" min="0" placeholder="0">
+              </div>
+            </div>
           </div>
-          <div class="field">
+
+          <div class="field sales-channel-field">
             <label>DELIVERY</label>
-            <input id="salesDelivery" type="number" min="0" placeholder="0">
+            <div class="sales-channel-inputs">
+              <div>
+                <span class="sales-mini-label">SALES</span>
+                <input id="salesDelivery" type="number" min="0" placeholder="0">
+              </div>
+              <div>
+                <span class="sales-mini-label">TC</span>
+                <input id="tcDelivery" type="number" min="0" placeholder="0">
+              </div>
+            </div>
           </div>
-          <div class="field">
+
+          <div class="field sales-channel-field">
             <label>TAKE AWAY</label>
-            <input id="salesTakeAway" type="number" min="0" placeholder="0">
+            <div class="sales-channel-inputs">
+              <div>
+                <span class="sales-mini-label">SALES</span>
+                <input id="salesTakeAway" type="number" min="0" placeholder="0">
+              </div>
+              <div>
+                <span class="sales-mini-label">TC</span>
+                <input id="tcTakeAway" type="number" min="0" placeholder="0">
+              </div>
+            </div>
           </div>
-          <div class="field">
+
+          <div class="field sales-channel-field">
             <label>CONNECT / BO</label>
-            <input id="salesConnect" type="number" min="0" placeholder="0">
+            <div class="sales-channel-inputs">
+              <div>
+                <span class="sales-mini-label">SALES</span>
+                <input id="salesConnect" type="number" min="0" placeholder="0">
+              </div>
+              <div>
+                <span class="sales-mini-label">TC</span>
+                <input id="tcConnect" type="number" min="0" placeholder="0">
+              </div>
+            </div>
           </div>
+
           <div class="field">
             <label>TIPS</label>
             <input id="salesTips" type="number" min="0" placeholder="0">
@@ -452,6 +499,10 @@ tr:last-child td{border-bottom:0}
           <div class="field">
             <label>TOTAL SALES</label>
             <input id="salesTotal" readonly value="Rp 0">
+          </div>
+          <div class="field">
+            <label>TOTAL TC</label>
+            <input id="salesTotalTc" readonly value="0">
           </div>
           <div class="field full-row">
             <label>KETERANGAN</label>
@@ -465,7 +516,7 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN</th><th>DELIVERY</th><th>TAKE AWAY</th><th>CONNECT / BO</th><th>TIPS</th><th>TOTAL SALES</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-waste" class="page-section hidden">
@@ -1514,7 +1565,7 @@ function historyHeaderKey(header){
   const h=String(header||'').trim().toUpperCase();
   const map={
     'ID':'id','TIMESTAMP':'timestamp','TANGGAL':'tanggal','STORE':'store',
-    'DINE IN':'dineIn','DELIVERY':'delivery','TAKE AWAY':'takeAway','CONNECT / BO':'connectBO',
+    'DINE IN':'dineIn','TC DINE IN':'tcDineIn','DELIVERY':'delivery','TC DELIVERY':'tcDelivery','TAKE AWAY':'takeAway','TC TAKE AWAY':'tcTakeAway','CONNECT / BO':'connectBO','TC CONNECT / BO':'tcConnectBO',
     'TIPS':'tips','TOTAL SALES':'totalSales','KETERANGAN':'keterangan','INPUT BY':'inputBy',
     'NO SC':'noSC','TANGGAL INPUT':'tanggalInput','TANGGAL KEJADIAN':'tanggalKejadian',
     'KATEGORI':'kategori','ITEM / ASSET':'itemAsset','JENIS KERUSAKAN':'jenisKerusakan',
@@ -1539,23 +1590,38 @@ async function loadDirectDatabaseHistory(moduleName){
   }).reverse().slice(0,5000);
 }
 
-async function loadSalesHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${formatRupiah(x.delivery)}</td><td>${formatRupiah(x.takeAway)}</td><td>${formatRupiah(x.connectBO)}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
+async function loadSalesHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${Number(x.tcDineIn||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.delivery)}</td><td>${Number(x.tcDelivery||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.takeAway)}</td><td>${Number(x.tcTakeAway||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.connectBO)}</td><td>${Number(x.tcConnectBO||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td><b>${Number(x.totalTc||0).toLocaleString('id-ID')}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="15" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
 async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
 async function loadMaintenanceHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('maintenance');$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance Semua Store: '+err.message)}}
 async function loadKPIHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('kpi');$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI Semua Store: '+err.message)}}
 
 /* SALES */
-['salesDineIn','salesDelivery','salesTakeAway','salesConnect','salesTips'].forEach(id=>{
-  $(id).addEventListener('input',updateSalesTotal);
+[
+  'salesDineIn','salesDelivery','salesTakeAway','salesConnect','salesTips',
+  'tcDineIn','tcDelivery','tcTakeAway','tcConnect'
+].forEach(id=>{
+  $(id).addEventListener('input',updateSalesTotals);
 });
 
-function updateSalesTotal(){
-  const total =
+function updateSalesTotals(){
+  const totalSales =
     num('salesDineIn')+
     num('salesDelivery')+
     num('salesTakeAway')+
     num('salesConnect');
-  $('salesTotal').value=formatRupiah(total);
+
+  const totalTc =
+    num('tcDineIn')+
+    num('tcDelivery')+
+    num('tcTakeAway')+
+    num('tcConnect');
+
+  $('salesTotal').value=formatRupiah(totalSales);
+  $('salesTotalTc').value=Number(totalTc||0).toLocaleString('id-ID');
+}
+
+function updateSalesTotal(){
+  updateSalesTotals();
 }
 
 async function saveSales(){
@@ -1570,9 +1636,13 @@ async function saveSales(){
       tanggal:$('salesDate').value,
       store:targetStore,
       dineIn:num('salesDineIn'),
+      tcDineIn:num('tcDineIn'),
       delivery:num('salesDelivery'),
+      tcDelivery:num('tcDelivery'),
       takeAway:num('salesTakeAway'),
+      tcTakeAway:num('tcTakeAway'),
       connectBO:num('salesConnect'),
+      tcConnect:num('tcConnect'),
       tips:num('salesTips'),
       keterangan:$('salesNote').value.trim(),
       inputBy:'PUBLIC USER'
@@ -1589,8 +1659,8 @@ async function saveSales(){
 }
 
 function resetSales(){
-  ['salesDineIn','salesDelivery','salesTakeAway','salesConnect','salesTips','salesNote'].forEach(id=>$(id).value='');
-  updateSalesTotal();
+  ['salesDineIn','tcDineIn','salesDelivery','tcDelivery','salesTakeAway','tcTakeAway','salesConnect','tcConnect','salesTips','salesNote'].forEach(id=>$(id).value='');
+  updateSalesTotals();
 }
 
 /* WASTE */
