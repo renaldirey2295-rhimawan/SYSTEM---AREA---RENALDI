@@ -262,6 +262,15 @@ tr:last-child td{border-bottom:0}
 <style>
 /* STORE API MAPPING V2: display names are kept in UI, backend receives canonical store keys. */
 </style>
+
+<style>
+.photo-picker{display:flex;flex-direction:column;gap:10px}
+.photo-picker-actions{display:flex;gap:8px;flex-wrap:wrap}
+.photo-picker-actions .btn{min-width:120px}
+.photo-picker input[type=file]{display:none}
+.photo-picker-note{font-size:12px;color:#64748b}
+</style>
+
 </head>
 <body>
 
@@ -694,10 +703,17 @@ tr:last-child td{border-bottom:0}
           </div>
           <div class="field full-row">
             <label>FOTO BEFORE</label>
-            <div class="filebox">
-              <input id="mtBefore" type="file" accept="image/*" onchange="previewFile(this,'mtBeforePreview')">
-              <div id="mtBeforePreview" class="preview"></div>
-            </div>
+            <div class="photo-picker">
+  <div class="photo-picker-actions">
+    <button type="button" class="btn btn-light" onclick="openPhotoCamera('mtBefore')">📷 Kamera</button>
+    <button type="button" class="btn btn-light" onclick="openPhotoGallery('mtBefore')">🖼️ Galeri</button>
+  </div>
+  <input id="mtBefore" type="file" accept="image/*" onchange="handlePhotoInput(this,'mtBeforePreview','mtBefore')">
+  <input id="mtBeforeCamera" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput(this,'mtBeforePreview','mtBefore')">
+  <input id="mtBeforeGallery" type="file" accept="image/*" onchange="handlePhotoInput(this,'mtBeforePreview','mtBefore')">
+  <div id="mtBeforePreview" class="preview"></div>
+  <div class="photo-picker-note">Pilih Kamera untuk foto langsung atau Galeri untuk memilih foto dari perangkat.</div>
+</div>
           </div>
         </div>
         <button class="btn btn-peach" onclick="saveMaintenance()">Buat Ticket</button>
@@ -753,10 +769,17 @@ tr:last-child td{border-bottom:0}
           </div>
           <div class="field full-row">
             <label>FOTO KPI *</label>
-            <div class="filebox">
-              <input id="kpiPhoto" type="file" accept="image/*" onchange="previewFile(this,'kpiPreview')">
-              <div id="kpiPreview" class="preview"></div>
-            </div>
+            <div class="photo-picker">
+  <div class="photo-picker-actions">
+    <button type="button" class="btn btn-light" onclick="openPhotoCamera('kpiPhoto')">📷 Kamera</button>
+    <button type="button" class="btn btn-light" onclick="openPhotoGallery('kpiPhoto')">🖼️ Galeri</button>
+  </div>
+  <input id="kpiPhoto" type="file" accept="image/*" onchange="handlePhotoInput(this,'kpiPreview','kpiPhoto')">
+  <input id="kpiPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput(this,'kpiPreview','kpiPhoto')">
+  <input id="kpiPhotoGallery" type="file" accept="image/*" onchange="handlePhotoInput(this,'kpiPreview','kpiPhoto')">
+  <div id="kpiPreview" class="preview"></div>
+  <div class="photo-picker-note">Pilih Kamera untuk foto langsung atau Galeri untuk memilih foto dari perangkat.</div>
+</div>
           </div>
         </div>
         <button class="btn btn-purple" onclick="saveKPI()">Upload KPI</button>
@@ -888,10 +911,17 @@ tr:last-child td{border-bottom:0}
           </div>
           <div class="field full-row">
             <label>FOTO KERUSAKAN <span id="swPhotoMark" style="visibility:hidden">*</span></label>
-            <div class="filebox">
-              <input id="swPhoto" type="file" accept="image/*" onchange="previewFile(this,'swPhotoPreview')">
-              <div id="swPhotoPreview" class="preview"></div>
-            </div>
+            <div class="photo-picker">
+  <div class="photo-picker-actions">
+    <button type="button" class="btn btn-light" onclick="openPhotoCamera('swPhoto')">📷 Kamera</button>
+    <button type="button" class="btn btn-light" onclick="openPhotoGallery('swPhoto')">🖼️ Galeri</button>
+  </div>
+  <input id="swPhoto" type="file" accept="image/*" onchange="handlePhotoInput(this,'swPhotoPreview','swPhoto')">
+  <input id="swPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput(this,'swPhotoPreview','swPhoto')">
+  <input id="swPhotoGallery" type="file" accept="image/*" onchange="handlePhotoInput(this,'swPhotoPreview','swPhoto')">
+  <div id="swPhotoPreview" class="preview"></div>
+  <div class="photo-picker-note">Pilih Kamera untuk foto langsung atau Galeri untuk memilih foto dari perangkat.</div>
+</div>
             <div class="small" id="swPhotoHelp">Wajib untuk Replacement - Rusak / Pecah.</div>
           </div>
           <div class="field full-row">
@@ -1566,7 +1596,7 @@ function historyHeaderKey(header){
   const map={
     'ID':'id','TIMESTAMP':'timestamp','TANGGAL':'tanggal','STORE':'store',
     'DINE IN':'dineIn','TC DINE IN':'tcDineIn','DELIVERY':'delivery','TC DELIVERY':'tcDelivery','TAKE AWAY':'takeAway','TC TAKE AWAY':'tcTakeAway','CONNECT / BO':'connectBO','TC CONNECT / BO':'tcConnectBO',
-    'TIPS':'tips','TOTAL SALES':'totalSales','TOTAL TC':'totalTc','KETERANGAN':'keterangan','INPUT BY':'inputBy',
+    'TIPS':'tips','TOTAL SALES':'totalSales','KETERANGAN':'keterangan','INPUT BY':'inputBy',
     'NO SC':'noSC','TANGGAL INPUT':'tanggalInput','TANGGAL KEJADIAN':'tanggalKejadian',
     'KATEGORI':'kategori','ITEM / ASSET':'itemAsset','JENIS KERUSAKAN':'jenisKerusakan',
     'PRIORITAS':'prioritas','FOTO BEFORE':'fotoBefore','STATUS':'status','TEKNISI / VENDOR':'teknisiVendor',
@@ -1723,7 +1753,7 @@ async function saveMaintenance(){
 
   try{
     showLoading(true);
-    const file=$('mtBefore').files[0];
+    const file=getPhotoFile('mtBefore');
 
     const payload={
       action:'saveMaintenance',
@@ -1812,8 +1842,7 @@ async function searchMaintenance(){
 
 function clearMaintenanceForm(){
   ['mtNoSC','mtAsset','mtDamage','mtVendor','mtNote'].forEach(id=>$(id).value='');
-  $('mtBefore').value='';
-  $('mtBeforePreview').innerHTML='';
+  clearPhotoPicker('mtBefore','mtBeforePreview');
   $('mtInputDate').value=todayISO();
   $('mtIncidentDate').value=todayISO();
   $('mtPriority').value='MEDIUM';
@@ -1827,7 +1856,7 @@ async function saveKPI(){
     return;
   }
 
-  const file=$('kpiPhoto').files[0];
+  const file=getPhotoFile('kpiPhoto');
   if(!file){
     toast('Foto KPI wajib dipilih.');
     return;
@@ -1849,8 +1878,7 @@ async function saveKPI(){
 
     const r=await apiPost(payload);
     toast('KPI berhasil diupload ke Google Drive.');
-    $('kpiPhoto').value='';
-    $('kpiPreview').innerHTML='';
+    clearPhotoPicker('kpiPhoto','kpiPreview');
     $('kpiNote').value='';
     await loadKPIHistory();
     loadDashboard();
@@ -1861,6 +1889,45 @@ async function saveKPI(){
 /* UTILS */
 function num(id){
   return Number($(id).value||0)||0;
+}
+
+function openPhotoCamera(id){
+  const el = $(id+'Camera');
+  if(el) el.click();
+}
+
+function openPhotoGallery(id){
+  const el = $(id+'Gallery');
+  if(el) el.click();
+}
+
+function handlePhotoInput(input,targetId,id){
+  const file = input && input.files ? input.files[0] : null;
+  if(!file) return;
+  window.__photoFiles = window.__photoFiles || {};
+  window.__photoFiles[id] = file;
+  const target = $(targetId);
+  if(target){
+    target.innerHTML='';
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(file);
+    img.alt='Preview foto';
+    target.appendChild(img);
+  }
+}
+
+function getPhotoFile(id){
+  return (window.__photoFiles && window.__photoFiles[id]) || null;
+}
+
+function clearPhotoPicker(id,targetId){
+  if(window.__photoFiles) delete window.__photoFiles[id];
+  [id,id+'Camera',id+'Gallery'].forEach(function(x){
+    const el=$(x);
+    if(el) el.value='';
+  });
+  const target=$(targetId);
+  if(target) target.innerHTML='';
 }
 
 function previewFile(input,targetId){
@@ -2147,7 +2214,7 @@ async function saveWalkthroughFinding(){
 
   try{
     showLoading(true);
-    const file = $('wtBefore').files[0];
+    const file = getPhotoFile('wtBefore');
 
     const payload = {
       action:'saveWalkthrough',
@@ -2580,8 +2647,13 @@ async function saveSmallwareRequestUI(){
   const name = $('swName').value.trim();
   const qty = Number($('swQty').value||0);
   const type = $('swType').value;
-  const file = $('swPhoto').files[0];
+  const targetStore = selectedStore('swStore');
+  const file = getPhotoFile('swPhoto');
 
+  if(!targetStore){
+    toast('Pilih Store terlebih dahulu.');
+    return;
+  }
   if(!name){
     toast('Nama Smallware wajib diisi.');
     return;
@@ -2723,8 +2795,7 @@ function resetSmallwareForm(){
   $('swName').value='';
   $('swQty').value='';
   $('swType').value='';
-  $('swPhoto').value='';
-  $('swPhotoPreview').innerHTML='';
+  clearPhotoPicker('swPhoto','swPhotoPreview');
   $('swNote').value='';
   toggleSmallwarePhoto();
 }
