@@ -302,6 +302,27 @@ body{
 <style>
 /* STORE API MAPPING V2: display names are kept in UI, backend receives canonical store keys. */
 </style>
+
+<style>
+/* V16: scenic photographic background rotates every 3 hours; cards stay readable. */
+:root{--scenic-overlay:rgba(246,249,255,.70)}
+html{min-height:100%;background:#eaf0f7}
+body{background:transparent!important;position:relative;isolation:isolate;min-height:100vh}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:linear-gradient(135deg,rgba(248,250,255,.68),rgba(250,248,255,.57)),var(--scenic-image);
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  transform:scale(1.015);transition:background-image .8s ease;
+}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:rgba(247,249,253,.12)}
+#appView{background:transparent!important}
+.topbar{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(14px)}
+.page{background:transparent}
+.card,.stat,.hero,.login-card{background:rgba(255,255,255,.91)!important;backdrop-filter:blur(8px)}
+.nav button{box-shadow:0 4px 12px rgba(40,60,90,.10)}
+@media(prefers-reduced-motion:reduce){body::before{transition:none}}
+</style>
+
 </head>
 <body>
 
@@ -1027,13 +1048,24 @@ function todayISO(){
 
 function formatDateWIB(value){
   if(value===null||value===undefined||value==='') return '-';
-  // Date cells from Sheets may arrive as ISO timestamps (e.g. 2026-10-07T17:00:00.000Z).
-  // Format the instant in Asia/Jakarta so midnight WIB is shown on the correct calendar day.
+  // Sales date is a calendar date, not a timestamp to be displayed in UTC.
+  // For ISO timestamp ending at 17:00Z, take it into Asia/Jakarta first (00:00 next day).
+  const raw = String(value).trim();
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/);
+  if(iso){
+    if(!iso[4]) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+    const d = new Date(raw);
+    if(!Number.isNaN(d.getTime())){
+      const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+      const part = key => parts.find(x=>x.type===key)?.value || '';
+      return `${part('day')}/${part('month')}/${part('year')}`;
+    }
+  }
   const d = value instanceof Date ? value : new Date(value);
-  if(Number.isNaN(d.getTime())) return String(value);
-  return new Intl.DateTimeFormat('en-GB',{
-    timeZone:'Asia/Jakarta',day:'2-digit',month:'2-digit',year:'numeric'
-  }).format(d);
+  if(Number.isNaN(d.getTime())) return raw;
+  const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+  const part = key => parts.find(x=>x.type===key)?.value || '';
+  return `${part('day')}/${part('month')}/${part('year')}`;
 }
 
 function formatRupiah(n){
@@ -2830,6 +2862,25 @@ function compressSmallwareImage(file){
 document.addEventListener('DOMContentLoaded', function(){
   initPublicPortal();
 });
+
+
+/* V16 scenic wallpaper: one landscape per 3-hour block, consistent for all visitors in that block. */
+(function initScenicBackground(){
+  const scenicPhotos = [
+    'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2200&q=85',
+    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2200&q=85',
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=85',
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=85'
+  ];
+  const applyScenic = () => {
+    const threeHourBlock = Math.floor(Date.now() / (3 * 60 * 60 * 1000));
+    const url = scenicPhotos[threeHourBlock % scenicPhotos.length];
+    document.documentElement.style.setProperty('--scenic-image', `url("${url}")`);
+  };
+  applyScenic();
+  window.setInterval(applyScenic, 60 * 1000);
+})();
+
 </script>
 </body>
 </html>
