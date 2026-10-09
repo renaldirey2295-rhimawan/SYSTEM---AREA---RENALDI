@@ -237,6 +237,46 @@ tr:last-child td{border-bottom:0}
 .sales-mini-label{display:block;font-size:10px;font-weight:700;color:#64748b;margin:0 0 5px;text-transform:uppercase}
 .sales-channel-inputs input{width:100%;box-sizing:border-box}
 @media(max-width:700px){.sales-channel-inputs{gap:8px}}
+
+
+/* V15 VISUAL UPDATE: SOFT COLOUR BACKGROUND + DISTINCT MENU BUTTONS */
+body{
+  background:
+    radial-gradient(ellipse at 8% 8%, rgba(188,218,250,.52) 0, rgba(188,218,250,0) 34%),
+    radial-gradient(ellipse at 92% 18%, rgba(226,207,249,.42) 0, rgba(226,207,249,0) 30%),
+    radial-gradient(ellipse at 82% 88%, rgba(190,235,211,.38) 0, rgba(190,235,211,0) 32%),
+    linear-gradient(135deg,#f7faff 0%,#fbf8ff 48%,#f5fbf7 100%);
+  background-attachment:fixed;
+}
+#appView{min-height:100vh;background:transparent}
+.topbar{background:rgba(255,255,255,.88);box-shadow:0 4px 20px rgba(60,80,110,.05)}
+.page{position:relative}
+.nav button{
+  border:1px solid transparent;box-shadow:0 3px 10px rgba(55,75,100,.07);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+.nav button:hover{transform:translateY(-2px);box-shadow:0 7px 16px rgba(55,75,100,.12);filter:saturate(1.08)}
+#nav button:nth-child(1){background:#e4efff;color:#315d91;border-color:#cbdfff}
+#nav button:nth-child(2){background:#dff5e8;color:#246847;border-color:#c1e8d1}
+#nav button:nth-child(3){background:#fff0d8;color:#8a5a16;border-color:#f4ddb1}
+#nav button:nth-child(4){background:#fbe3dc;color:#914d3d;border-color:#f0c9bd}
+#nav button:nth-child(5){background:#eee5ff;color:#6745a0;border-color:#d9cafa}
+#nav button:nth-child(6){background:#dff5f6;color:#216d75;border-color:#bfe7e9}
+#nav button:nth-child(7){background:#ffe5f0;color:#91466b;border-color:#f5c9dd}
+#nav button.active{outline:2px solid rgba(72,103,145,.22);outline-offset:1px;filter:saturate(1.12);box-shadow:0 5px 13px rgba(55,75,100,.13)}
+/* Submenu buttons such as Smallware tabs */
+#page-smallware .nav button:nth-child(1){background:#e0f5e8;color:#246847;border-color:#c1e8d1}
+#page-smallware .nav button:nth-child(2){background:#e4efff;color:#315d91;border-color:#cbdfff}
+#page-smallware .nav button:nth-child(3){background:#eee5ff;color:#6745a0;border-color:#d9cafa}
+#page-smallware .nav button.active{box-shadow:inset 0 0 0 2px rgba(64,91,130,.13),0 4px 12px rgba(55,75,100,.10)}
+.btn{box-shadow:0 2px 7px rgba(55,75,100,.06)}
+.btn:hover{box-shadow:0 6px 14px rgba(55,75,100,.12)}
+.card,.stat,.hero{backdrop-filter:blur(3px)}
+@media(max-width:600px){
+  body{background-attachment:scroll}
+  #nav button{padding:10px 12px}
+}
+
 </style>
 
 <style>
@@ -261,29 +301,6 @@ tr:last-child td{border-bottom:0}
 
 <style>
 /* STORE API MAPPING V2: display names are kept in UI, backend receives canonical store keys. */
-</style>
-
-<style>
-.photo-picker{display:flex;flex-direction:column;gap:10px}
-.photo-picker-actions{display:flex;gap:8px;flex-wrap:wrap}
-.photo-picker-actions .btn{min-width:120px}
-.photo-picker input[type=file]{display:none}
-.photo-picker-note{font-size:12px;color:#64748b}
-</style>
-
-
-<style>
-:root{--soft-blue:#eaf4ff;--soft-blue-border:#cfe4f8;--soft-blue-text:#3d6387;--soft-green:#edf9f0;--soft-green-border:#d2ecd8;--soft-green-text:#467451;--soft-purple:#f4edff;--soft-purple-border:#e2d4f5;--soft-purple-text:#6b5588;--soft-orange:#fff6e8;--soft-orange-border:#f1dfbd;--soft-orange-text:#7b6233;--soft-pink:#fff0f3;--soft-pink-border:#f0d6dc;--soft-pink-text:#805562;--soft-cyan:#eafaf9;--soft-cyan-border:#cfecea;--soft-cyan-text:#3f716f}
-.module-launcher{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
-.module-card{border:1px solid var(--line);border-radius:18px;padding:16px;text-align:left;background:#fff;box-shadow:var(--shadow);transition:.18s;min-height:92px;display:flex;align-items:center;gap:12px;color:var(--text)}
-.module-card:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(48,67,91,.10)}
-.module-card .module-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:23px;flex:0 0 48px}
-.module-card .module-name{font-weight:800;font-size:15px}.module-card .module-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
-.module-card.sales .module-icon{background:var(--soft-blue)}.module-card.waste .module-icon{background:var(--soft-green)}.module-card.maintenance .module-icon{background:var(--soft-orange)}.module-card.kpi .module-icon{background:var(--soft-purple)}.module-card.walkthrough .module-icon{background:var(--soft-pink)}.module-card.smallware .module-icon{background:var(--soft-cyan)}.module-card.soldout .module-icon{background:#fff1e8}.module-card.dashboard .module-icon{background:#eef2f6}
-.module-tabs{display:flex;gap:8px;overflow:auto;padding:4px;margin:0 0 16px;scrollbar-width:none;background:#fbfcfe;border:1px solid var(--line);border-radius:16px}.module-tabs::-webkit-scrollbar{display:none}
-.module-tabs button{white-space:nowrap;border:1px solid transparent;background:transparent;color:#68788c;border-radius:11px;padding:9px 13px;font-weight:800;font-size:13px}.module-tabs button:hover{background:#f3f6fa}.module-tabs button.active{background:var(--soft-blue);color:var(--soft-blue-text);border-color:var(--soft-blue-border)}.module-tabs .tab-green.active{background:var(--soft-green);color:var(--soft-green-text);border-color:var(--soft-green-border)}.module-tabs .tab-purple.active{background:var(--soft-purple);color:var(--soft-purple-text);border-color:var(--soft-purple-border)}.module-tabs .tab-orange.active{background:var(--soft-orange);color:var(--soft-orange-text);border-color:var(--soft-orange-border)}.module-tabs .tab-pink.active{background:var(--soft-pink);color:var(--soft-pink-text);border-color:var(--soft-pink-border)}.module-tabs .tab-cyan.active{background:var(--soft-cyan);color:var(--soft-cyan-text);border-color:var(--soft-cyan-border)}
-.history-toolbar{display:flex;gap:10px;align-items:end;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px;padding:12px;border-radius:14px;background:#fafbfd;border:1px solid var(--line)}.history-filter{min-width:220px;max-width:300px}.history-label{font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px}
-@media(max-width:850px){.module-launcher{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.module-launcher{gap:9px}.module-card{padding:12px;min-height:82px;gap:9px}.module-card .module-icon{width:40px;height:40px;flex-basis:40px;border-radius:12px;font-size:20px}.module-card .module-name{font-size:13px}.module-card .module-desc{font-size:10px}.module-tabs button{font-size:12px;padding:8px 10px}}
 </style>
 </head>
 <body>
@@ -322,22 +339,20 @@ tr:last-child td{border-bottom:0}
   </header>
 
   <main class="page">
-    <div class="module-launcher" id="moduleLauncher">
-      <button class="module-card dashboard" onclick="showPage('dashboard')"><span class="module-icon">🏠</span><span><div class="module-name">Dashboard</div><div class="module-desc">Ringkasan seluruh aktivitas area</div></span></button>
-      <button class="module-card sales" onclick="showPage('sales')"><span class="module-icon">💰</span><span><div class="module-name">Sales</div><div class="module-desc">Input & history sales per store</div></span></button>
-      <button class="module-card waste" onclick="showPage('waste')"><span class="module-icon">♻️</span><span><div class="module-name">Waste</div><div class="module-desc">Dashboard & history waste</div></span></button>
-      <button class="module-card maintenance" onclick="showPage('maintenance')"><span class="module-icon">🔧</span><span><div class="module-name">Maintenance</div><div class="module-desc">Ticket & history perbaikan</div></span></button>
-      <button class="module-card kpi" onclick="showPage('kpi')"><span class="module-icon">📊</span><span><div class="module-name">KPI Store</div><div class="module-desc">Upload & history KPI</div></span></button>
-      <button class="module-card walkthrough" onclick="showPage('walkthrough')"><span class="module-icon">📝</span><span><div class="module-name">Walkthrough</div><div class="module-desc">Temuan & history follow up</div></span></button>
-      <button class="module-card smallware" onclick="showPage('smallware')"><span class="module-icon">🍴</span><span><div class="module-name">Smallware</div><div class="module-desc">Request, history & frequency</div></span></button>
-      <button class="module-card soldout" onclick="showPage('soldout')"><span class="module-icon">🚫</span><span><div class="module-name">Sold Out</div><div class="module-desc">Rekap history sold out</div></span></button>
-    </div>
+    <nav class="nav" id="nav">
+      <button data-page="dashboard" onclick="showPage('dashboard')">🏠 Dashboard</button>
+      <button data-page="sales" onclick="showPage('sales')">💰 Sales</button>
+      <button data-page="waste" onclick="showPage('waste')">♻️ Waste</button>
+      <button data-page="maintenance" onclick="showPage('maintenance')">🔧 Maintenance</button>
+      <button data-page="kpi" onclick="showPage('kpi')">📊 KPI Store</button>
+      <button data-page="walkthrough" onclick="showPage('walkthrough')">📝 Walkthrough</button>
+      <button data-page="smallware" onclick="showPage('smallware')">🍴 Smallware</button>
+    </nav>
 
     <div class="store-only-note">
       🌐 <b>STORE PORTAL</b> — Tanpa username & password.
       Semua pengguna dapat melihat seluruh data store. Untuk input, pilih Store pada dropdown di menu terkait.
     </div>
-    <div id="moduleBack" class="page-back hidden"><button onclick="showPage('dashboard')">← Kembali ke Menu Utama</button></div>
 
     <section id="page-dashboard" class="page-section">
       <div class="hero">
@@ -444,10 +459,8 @@ tr:last-child td{border-bottom:0}
         <h2>💰 Sales Report</h2>
         <p>Input laporan sales harian store.</p>
       </div>
-      <div class="module-tabs" id="salesTabs"><button class="active" onclick="openModuleTab('sales','input')">➕ Input Sales</button><button onclick="openModuleTab('sales','history')">📋 History Sales</button></div>
-      <div class="module-tabs" id="salesTabs"><button class="active" onclick="openModuleTab('sales','input')">➕ Input Sales</button><button onclick="openModuleTab('sales','history')">📋 History Sales</button></div>
 
-      <div id="salesInputPanel" class="card">
+      <div class="card">
         <div class="form-grid">
           <div class="field">
             <label>TANGGAL</label>
@@ -541,8 +554,9 @@ tr:last-child td{border-bottom:0}
           <button class="btn btn-light" onclick="resetSales()">Reset</button>
         </div>
       </div>
+    </section>
 
-            <div id="salesHistoryPanel" class="card hidden" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="history-toolbar"><div class="history-filter"><span class="history-label">FILTER STORE</span><select id="salesHistoryStore" onchange="filterHistoryByBody('salesHistoryBody',this.value,0)"><option value="ALL">ALL STORE</option><option>CITYWALK</option><option>CITRA TOWER</option><option>MENTENG</option></select></div></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-waste" class="page-section hidden">
@@ -550,7 +564,6 @@ tr:last-child td{border-bottom:0}
         <h2>♻️ Waste Dashboard</h2>
         <p>Data dibaca langsung dari Waste Control V2.8 perusahaan. Store hanya dapat melihat data.</p>
       </div>
-      <div class="module-tabs" id="wasteTabs"><button class="active tab-green" onclick="openModuleTab('waste','dashboard')">📊 Dashboard Waste</button><button onclick="openModuleTab('waste','history')">📋 History Waste</button></div>
 
       <div class="stats">
         <div class="stat">
@@ -636,7 +649,7 @@ tr:last-child td{border-bottom:0}
         </div>
       </div>
 
-      <div id="wasteHistoryPanel" class="card hidden" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Waste</h3><div class="small">Seluruh history Waste semua Store dari Waste Control.</div></div><button class="btn btn-light" onclick="loadWasteHistory()">↻ Refresh</button></div><div class="history-toolbar"><div class="history-filter"><span class="history-label">FILTER STORE</span><select id="wasteHistoryStore" onchange="filterHistoryByBody('wasteHistoryBody',this.value,5)"><option value="ALL">ALL STORE</option><option>CITYWALK</option><option>CITRA TOWER</option><option>MENTENG</option></select></div></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>PERIODE</th><th>KODE</th><th>NAMA BARANG</th><th>SATUAN</th><th>TOTAL WASTE</th><th>STORE</th></tr></thead><tbody id="wasteHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Waste</h3><div class="small">Seluruh history Waste semua Store dari Waste Control.</div></div><button class="btn btn-light" onclick="loadWasteHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1000px"><thead><tr><th>PERIODE</th><th>KODE</th><th>NAMA BARANG</th><th>SATUAN</th><th>TOTAL WASTE</th><th>STORE</th></tr></thead><tbody id="wasteHistoryBody"></tbody></table></div></div>
 
       <div class="card" style="margin-top:16px">
         <div class="card-head">
@@ -654,9 +667,8 @@ tr:last-child td{border-bottom:0}
         <h2>🔧 Maintenance Ticket</h2>
         <p>Ticket perbaikan/kerusakan. No SC diinput manual sesuai nomor dari sistem perusahaan.</p>
       </div>
-      <div class="module-tabs" id="maintenanceTabs"><button class="active tab-orange" onclick="openModuleTab('maintenance','input')">➕ Input Ticket</button><button onclick="openModuleTab('maintenance','history')">📋 History Maintenance</button></div>
 
-      <div id="maintenanceInputPanel" class="card">
+      <div class="card">
         <h3>➕ Buat Maintenance Ticket</h3>
         <div class="form-grid">
           <div class="field">
@@ -722,17 +734,10 @@ tr:last-child td{border-bottom:0}
           </div>
           <div class="field full-row">
             <label>FOTO BEFORE</label>
-            <div class="photo-picker">
-  <div class="photo-picker-actions">
-    <button type="button" class="btn btn-light" onclick="openPhotoCamera('mtBefore')">📷 Kamera</button>
-    <button type="button" class="btn btn-light" onclick="openPhotoGallery('mtBefore')">🖼️ Galeri</button>
-  </div>
-  <input id="mtBefore" type="file" accept="image/*" onchange="handlePhotoInput(this,'mtBeforePreview','mtBefore')">
-  <input id="mtBeforeCamera" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput(this,'mtBeforePreview','mtBefore')">
-  <input id="mtBeforeGallery" type="file" accept="image/*" onchange="handlePhotoInput(this,'mtBeforePreview','mtBefore')">
-  <div id="mtBeforePreview" class="preview"></div>
-  <div class="photo-picker-note">Pilih Kamera untuk foto langsung atau Galeri untuk memilih foto dari perangkat.</div>
-</div>
+            <div class="filebox">
+              <input id="mtBefore" type="file" accept="image/*" onchange="previewFile(this,'mtBeforePreview')">
+              <div id="mtBeforePreview" class="preview"></div>
+            </div>
           </div>
         </div>
         <button class="btn btn-peach" onclick="saveMaintenance()">Buat Ticket</button>
@@ -749,7 +754,7 @@ tr:last-child td{border-bottom:0}
         </div>
         <div id="maintenanceResult" style="margin-top:14px"></div>
       </div>
-      <div id="maintenanceHistoryPanel" class="card hidden" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance Semua Store</h3><div class="small">Seluruh ticket Maintenance semua Store.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="history-toolbar"><div class="history-filter"><span class="history-label">FILTER STORE</span><select id="maintenanceHistoryStore" onchange="filterHistoryByBody('maintenanceHistoryBody',this.value,2)"><option value="ALL">ALL STORE</option><option>CITYWALK</option><option>CITRA TOWER</option><option>MENTENG</option></select></div></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance Semua Store</h3><div class="small">Seluruh ticket Maintenance semua Store.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-kpi" class="page-section hidden">
@@ -757,9 +762,8 @@ tr:last-child td{border-bottom:0}
         <h2>📊 KPI Store</h2>
         <p>Upload foto dashboard KPI dari sistem perusahaan.</p>
       </div>
-      <div class="module-tabs" id="kpiTabs"><button class="active tab-purple" onclick="openModuleTab('kpi','input')">➕ Input KPI</button><button onclick="openModuleTab('kpi','history')">📋 History KPI</button></div>
 
-      <div id="kpiInputPanel" class="card">
+      <div class="card">
         <div class="form-grid">
           <div class="field">
             <label>STORE *</label>
@@ -789,23 +793,16 @@ tr:last-child td{border-bottom:0}
           </div>
           <div class="field full-row">
             <label>FOTO KPI *</label>
-            <div class="photo-picker">
-  <div class="photo-picker-actions">
-    <button type="button" class="btn btn-light" onclick="openPhotoCamera('kpiPhoto')">📷 Kamera</button>
-    <button type="button" class="btn btn-light" onclick="openPhotoGallery('kpiPhoto')">🖼️ Galeri</button>
-  </div>
-  <input id="kpiPhoto" type="file" accept="image/*" onchange="handlePhotoInput(this,'kpiPreview','kpiPhoto')">
-  <input id="kpiPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput(this,'kpiPreview','kpiPhoto')">
-  <input id="kpiPhotoGallery" type="file" accept="image/*" onchange="handlePhotoInput(this,'kpiPreview','kpiPhoto')">
-  <div id="kpiPreview" class="preview"></div>
-  <div class="photo-picker-note">Pilih Kamera untuk foto langsung atau Galeri untuk memilih foto dari perangkat.</div>
-</div>
+            <div class="filebox">
+              <input id="kpiPhoto" type="file" accept="image/*" onchange="previewFile(this,'kpiPreview')">
+              <div id="kpiPreview" class="preview"></div>
+            </div>
           </div>
         </div>
         <button class="btn btn-purple" onclick="saveKPI()">Upload KPI</button>
       </div>
 
-      <div id="kpiHistoryPanel" class="card hidden" style="margin-top:16px"><div class="card-head"><div><h3>📋 History KPI Semua Store</h3><div class="small">Seluruh history upload KPI langsung dari KPI DATABASE semua Store.</div></div><button class="btn btn-light" onclick="loadKPIHistory()">↻ Refresh</button></div><div class="history-toolbar"><div class="history-filter"><span class="history-label">FILTER STORE</span><select id="kpiHistoryStore" onchange="filterHistoryByBody('kpiHistoryBody',this.value,1)"><option value="ALL">ALL STORE</option><option>CITYWALK</option><option>CITRA TOWER</option><option>MENTENG</option></select></div></div><div class="table-wrap"><table style="min-width:900px"><thead><tr><th>TIMESTAMP</th><th>STORE</th><th>BULAN</th><th>TAHUN</th><th>TGL UPLOAD</th><th>KETERANGAN</th><th>FILE</th><th>UPLOAD BY</th></tr></thead><tbody id="kpiHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History KPI Semua Store</h3><div class="small">Seluruh history upload KPI langsung dari KPI DATABASE semua Store.</div></div><button class="btn btn-light" onclick="loadKPIHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:900px"><thead><tr><th>TIMESTAMP</th><th>STORE</th><th>BULAN</th><th>TAHUN</th><th>TGL UPLOAD</th><th>KETERANGAN</th><th>FILE</th><th>UPLOAD BY</th></tr></thead><tbody id="kpiHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-walkthrough" class="page-section hidden">
@@ -813,7 +810,6 @@ tr:last-child td{border-bottom:0}
         <h2>📝 Walkthrough</h2>
         <p id="walkthroughHeroSub">Temuan operasional dan tindak lanjut.</p>
       </div>
-      <div class="module-tabs" id="walkthroughTabs"><button class="active tab-pink" onclick="openModuleTab('walkthrough','history')">📋 History Temuan</button><button onclick="openModuleTab('walkthrough','detail')">🔎 Detail Temuan</button></div>
 
       <div class="card">
         <div class="card-head">
@@ -854,62 +850,6 @@ tr:last-child td{border-bottom:0}
       <div id="walkthroughDetail" class="card hidden" style="margin-top:16px"></div>
     </section>
 
-    <section id="page-soldout" class="page-section hidden">
-      <div class="hero">
-        <h2>🚫 Rekap Sold Out</h2>
-        <p>Rekap item yang mengalami sold out berulang berdasarkan Store, tanggal, kode material, dan nama barang.</p>
-      </div>
-      <div class="module-tabs" id="soldoutTabs"><button class="active" onclick="openModuleTab('soldout','history')">📋 History Sold Out</button></div>
-
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-head">
-          <div>
-            <h3>🔎 Filter Rekap Sold Out</h3>
-            <div class="small">Sumber data: HISTORY BASE. Data dikelompokkan berdasarkan Store + Kode Material.</div>
-          </div>
-          <button class="btn btn-light" onclick="loadSoldOutSummary()">↻ Refresh</button>
-        </div>
-        <div class="form-grid">
-          <div class="field">
-            <label>STORE</label>
-            <select id="soldOutStore">
-              <option value="ALL">ALL STORE</option>
-              <option value="MENTENG">MENTENG</option>
-              <option value="CITYWALK">CITYWALK</option>
-              <option value="CITRA TOWER">CITRA TOWER</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>DARI TANGGAL</label>
-            <input id="soldOutFrom" type="date">
-          </div>
-          <div class="field">
-            <label>SAMPAI TANGGAL</label>
-            <input id="soldOutTo" type="date">
-          </div>
-        </div>
-      </div>
-
-      <div class="stats" style="margin-bottom:16px">
-        <div class="stat"><div class="icon">🚫</div><div class="label">TOTAL ITEM SO</div><div id="soStatTotal" class="value">0</div></div>
-        <div class="stat"><div class="icon">🔴</div><div class="label">CRITICAL 7+ HARI</div><div id="soStatCritical" class="value">0</div></div>
-        <div class="stat"><div class="icon">🟠</div><div class="label">HIGH 4–6 HARI</div><div id="soStatHigh" class="value">0</div></div>
-        <div class="stat"><div class="icon">🟡</div><div class="label">MONITOR 2–3 HARI</div><div id="soStatMonitor" class="value">0</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <h3>📋 Detail Sold Out Berulang</h3>
-            <div class="small">Prioritas berdasarkan longest streak sold out.</div>
-          </div>
-        </div>
-        <div id="soldOutTableWrap">
-          <div class="empty">Pilih filter lalu klik Refresh.</div>
-        </div>
-      </div>
-    </section>
-
     <section id="page-smallware" class="page-section hidden">
       <div class="hero">
         <h2>🍴 Smallware Control</h2>
@@ -939,8 +879,8 @@ tr:last-child td{border-bottom:0}
         </div>
       </div>
 
-      <div class="module-tabs" id="smallwareTabs">
-        <button id="swTabRequest" class="active tab-cyan" onclick="showSmallwareTab('request')">➕ Request Baru</button>
+      <div class="nav" style="padding-bottom:14px">
+        <button id="swTabRequest" class="active" onclick="showSmallwareTab('request')">➕ Request Baru</button>
         <button id="swTabHistory" onclick="showSmallwareTab('history')">📋 History</button>
         <button id="swTabFrequency" onclick="showSmallwareTab('frequency')">📈 Frequency</button>
       </div>
@@ -988,17 +928,10 @@ tr:last-child td{border-bottom:0}
           </div>
           <div class="field full-row">
             <label>FOTO KERUSAKAN <span id="swPhotoMark" style="visibility:hidden">*</span></label>
-            <div class="photo-picker">
-  <div class="photo-picker-actions">
-    <button type="button" class="btn btn-light" onclick="openPhotoCamera('swPhoto')">📷 Kamera</button>
-    <button type="button" class="btn btn-light" onclick="openPhotoGallery('swPhoto')">🖼️ Galeri</button>
-  </div>
-  <input id="swPhoto" type="file" accept="image/*" onchange="handlePhotoInput(this,'swPhotoPreview','swPhoto')">
-  <input id="swPhotoCamera" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput(this,'swPhotoPreview','swPhoto')">
-  <input id="swPhotoGallery" type="file" accept="image/*" onchange="handlePhotoInput(this,'swPhotoPreview','swPhoto')">
-  <div id="swPhotoPreview" class="preview"></div>
-  <div class="photo-picker-note">Pilih Kamera untuk foto langsung atau Galeri untuk memilih foto dari perangkat.</div>
-</div>
+            <div class="filebox">
+              <input id="swPhoto" type="file" accept="image/*" onchange="previewFile(this,'swPhotoPreview')">
+              <div id="swPhotoPreview" class="preview"></div>
+            </div>
             <div class="small" id="swPhotoHelp">Wajib untuk Replacement - Rusak / Pecah.</div>
           </div>
           <div class="field full-row">
@@ -1090,6 +1023,17 @@ function todayISO(){
   const d = new Date();
   const local = new Date(d.getTime()-d.getTimezoneOffset()*60000);
   return local.toISOString().slice(0,10);
+}
+
+function formatDateWIB(value){
+  if(value===null||value===undefined||value==='') return '-';
+  // Date cells from Sheets may arrive as ISO timestamps (e.g. 2026-10-07T17:00:00.000Z).
+  // Format the instant in Asia/Jakarta so midnight WIB is shown on the correct calendar day.
+  const d = value instanceof Date ? value : new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+  return new Intl.DateTimeFormat('en-GB',{
+    timeZone:'Asia/Jakarta',day:'2-digit',month:'2-digit',year:'numeric'
+  }).format(d);
 }
 
 function formatRupiah(n){
@@ -1265,71 +1209,25 @@ function initPublicPortal(){
 }
 
 
-
-function setModuleTabs(module, active){
-  const wrap=$(module+'Tabs'); if(!wrap) return;
-  wrap.querySelectorAll('button').forEach(btn=>{
-    const t=(btn.textContent||'').toLowerCase();
-    let key='';
-    if(t.includes('input')||t.includes('request baru')) key='input';
-    else if(t.includes('dashboard')) key='dashboard';
-    else if(t.includes('history')) key='history';
-    else if(t.includes('detail')) key='detail';
-    else if(t.includes('frequency')) key='frequency';
-    btn.classList.toggle('active',key===active);
-  });
-}
-function openModuleTab(module, tab){
-  setModuleTabs(module,tab);
-  if(module==='sales'){
-    $('salesInputPanel')?.classList.toggle('hidden',tab!=='input');
-    $('salesHistoryPanel')?.classList.toggle('hidden',tab!=='history');
-    if(tab==='history') loadSalesHistory();
-  } else if(module==='waste'){
-    $('wasteHistoryPanel')?.classList.toggle('hidden',tab!=='history');
-    if(tab==='dashboard') initWastePage();
-    if(tab==='history') loadWasteHistory();
-  } else if(module==='maintenance'){
-    $('maintenanceInputPanel')?.classList.toggle('hidden',tab!=='input');
-    $('maintenanceHistoryPanel')?.classList.toggle('hidden',tab!=='history');
-    if(tab==='history') loadMaintenanceHistory();
-  } else if(module==='kpi'){
-    $('kpiInputPanel')?.classList.toggle('hidden',tab!=='input');
-    $('kpiHistoryPanel')?.classList.toggle('hidden',tab!=='history');
-    if(tab==='history') loadKPIHistory();
-  } else if(module==='walkthrough'){
-    const detail=$('walkthroughDetail');
-    if(tab==='history'){detail?.classList.add('hidden');loadWalkthrough();}
-    if(tab==='detail'){if(detail?.innerHTML.trim()) detail.classList.remove('hidden'); else toast('Pilih temuan terlebih dahulu dari History Temuan.');}
-  } else if(module==='smallware'){
-    showSmallwareTab(tab==='input'?'request':tab);
-  } else if(module==='soldout'){
-    initSoldOut();
-  }
-}
-function filterHistoryByBody(bodyId, store, storeCol){
-  const body=$(bodyId); if(!body) return;
-  [...body.querySelectorAll('tr')].forEach(tr=>{
-    const cell=tr.children[storeCol];
-    const val=(cell?.textContent||'').trim().toUpperCase();
-    tr.style.display=(store==='ALL'||val===String(store).toUpperCase())?'':'none';
-  });
-}
-
 function showPage(page){
   document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
-  const target=$('page-'+page); if(target) target.classList.remove('hidden');
-  $('moduleLauncher')?.classList.toggle('hidden',page!=='dashboard');
-  $('moduleBack')?.classList.toggle('hidden',page==='dashboard');
+  const target = $('page-'+page);
+  if(target) target.classList.remove('hidden');
+
+  document.querySelectorAll('#nav button').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.page===page);
+  });
+
   if(page==='dashboard') loadDashboard();
-  if(page==='sales'){ $('salesDate').value=todayISO(); openModuleTab('sales','input'); }
-  if(page==='waste') openModuleTab('waste','dashboard');
-  if(page==='maintenance') openModuleTab('maintenance','input');
-  if(page==='kpi') openModuleTab('kpi','input');
-  if(page==='walkthrough'){ initWalkthrough(); openModuleTab('walkthrough','history'); }
-  if(page==='smallware'){ initSmallware(); openModuleTab('smallware','input'); }
-  if(page==='soldout') openModuleTab('soldout','history');
+  if(page==='sales'){ $('salesDate').value=todayISO(); loadSalesHistory(); }
+  if(page==='waste'){ initWastePage(); loadWasteHistory(); }
+  if(page==='maintenance'){ loadMaintenanceHistory(); }
+  if(page==='kpi'){ loadKPIHistory(); }
+  if(page==='walkthrough') initWalkthrough();
+  if(page==='smallware') initSmallware();
+  if(page==='waste') initWastePage();
 }
+
 async function loadDashboard(){
   showLoading(true);
 
@@ -1363,6 +1261,10 @@ async function loadDashboard(){
     if(wasteResult && wasteResult.success){
       renderDashboardWasteSummary(wasteResult, selected);
     }
+
+    // History Sales juga berada di Dashboard, jadi wajib dimuat saat Dashboard dibuka.
+    // Data tetap seluruh Store dan tidak digabung.
+    await loadSalesHistory();
 
   }catch(err){
     toast(err.message);
@@ -1739,7 +1641,7 @@ async function loadDirectDatabaseHistory(moduleName){
   }).reverse().slice(0,5000);
 }
 
-async function loadSalesHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(x.tanggal||'-')}</td><td>${formatRupiah(x.dineIn)}</td><td>${Number(x.tcDineIn||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.delivery)}</td><td>${Number(x.tcDelivery||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.takeAway)}</td><td>${Number(x.tcTakeAway||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.connectBO)}</td><td>${Number(x.tcConnectBO||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td><b>${Number(x.totalTc||0).toLocaleString('id-ID')}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="15" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
+async function loadSalesHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(formatDateWIB(x.tanggal))}</td><td>${formatRupiah(x.dineIn)}</td><td>${Number(x.tcDineIn||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.delivery)}</td><td>${Number(x.tcDelivery||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.takeAway)}</td><td>${Number(x.tcTakeAway||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.connectBO)}</td><td>${Number(x.tcConnectBO||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td><b>${Number(x.totalTc||0).toLocaleString('id-ID')}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="15" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
 async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
 async function loadMaintenanceHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('maintenance');$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance Semua Store: '+err.message)}}
 async function loadKPIHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('kpi');$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI Semua Store: '+err.message)}}
@@ -1872,7 +1774,7 @@ async function saveMaintenance(){
 
   try{
     showLoading(true);
-    const file=getPhotoFile('mtBefore');
+    const file=$('mtBefore').files[0];
 
     const payload={
       action:'saveMaintenance',
@@ -1961,7 +1863,8 @@ async function searchMaintenance(){
 
 function clearMaintenanceForm(){
   ['mtNoSC','mtAsset','mtDamage','mtVendor','mtNote'].forEach(id=>$(id).value='');
-  clearPhotoPicker('mtBefore','mtBeforePreview');
+  $('mtBefore').value='';
+  $('mtBeforePreview').innerHTML='';
   $('mtInputDate').value=todayISO();
   $('mtIncidentDate').value=todayISO();
   $('mtPriority').value='MEDIUM';
@@ -1975,7 +1878,7 @@ async function saveKPI(){
     return;
   }
 
-  const file=getPhotoFile('kpiPhoto');
+  const file=$('kpiPhoto').files[0];
   if(!file){
     toast('Foto KPI wajib dipilih.');
     return;
@@ -1997,7 +1900,8 @@ async function saveKPI(){
 
     const r=await apiPost(payload);
     toast('KPI berhasil diupload ke Google Drive.');
-    clearPhotoPicker('kpiPhoto','kpiPreview');
+    $('kpiPhoto').value='';
+    $('kpiPreview').innerHTML='';
     $('kpiNote').value='';
     await loadKPIHistory();
     loadDashboard();
@@ -2008,45 +1912,6 @@ async function saveKPI(){
 /* UTILS */
 function num(id){
   return Number($(id).value||0)||0;
-}
-
-function openPhotoCamera(id){
-  const el = $(id+'Camera');
-  if(el) el.click();
-}
-
-function openPhotoGallery(id){
-  const el = $(id+'Gallery');
-  if(el) el.click();
-}
-
-function handlePhotoInput(input,targetId,id){
-  const file = input && input.files ? input.files[0] : null;
-  if(!file) return;
-  window.__photoFiles = window.__photoFiles || {};
-  window.__photoFiles[id] = file;
-  const target = $(targetId);
-  if(target){
-    target.innerHTML='';
-    const img=document.createElement('img');
-    img.src=URL.createObjectURL(file);
-    img.alt='Preview foto';
-    target.appendChild(img);
-  }
-}
-
-function getPhotoFile(id){
-  return (window.__photoFiles && window.__photoFiles[id]) || null;
-}
-
-function clearPhotoPicker(id,targetId){
-  if(window.__photoFiles) delete window.__photoFiles[id];
-  [id,id+'Camera',id+'Gallery'].forEach(function(x){
-    const el=$(x);
-    if(el) el.value='';
-  });
-  const target=$(targetId);
-  if(target) target.innerHTML='';
 }
 
 function previewFile(input,targetId){
@@ -2333,7 +2198,7 @@ async function saveWalkthroughFinding(){
 
   try{
     showLoading(true);
-    const file = getPhotoFile('wtBefore');
+    const file = $('wtBefore').files[0];
 
     const payload = {
       action:'saveWalkthrough',
@@ -2428,95 +2293,6 @@ function resetWalkthroughForm(){
 
 let smallwareRows = [];
 let smallwareFrequencyRows = [];
-
-function initSoldOut(){
-  const from = $('soldOutFrom');
-  const to = $('soldOutTo');
-  if(from && !from.value) from.value = '';
-  if(to && !to.value) to.value = todayISO();
-  loadSoldOutSummary();
-}
-
-async function loadSoldOutSummary(){
-  const target = $('soldOutTableWrap');
-  if(!target) return;
-
-  try{
-    showLoading(true);
-    target.innerHTML = '<div class="empty">Memuat rekap sold out...</div>';
-
-    const result = await apiGet('soldoutSummary', {
-      store: $('soldOutStore')?.value || 'ALL',
-      from: $('soldOutFrom')?.value || '',
-      to: $('soldOutTo')?.value || '',
-      limit: 5000
-    });
-
-    renderSoldOutSummary(result || {});
-  }catch(err){
-    target.innerHTML = `<div class="empty">Gagal memuat Rekap Sold Out: ${escapeHtml(err.message||'Unknown error')}</div>`;
-    ['soStatTotal','soStatCritical','soStatHigh','soStatMonitor'].forEach(id=>{ if($(id)) $(id).textContent='0'; });
-  }finally{
-    showLoading(false);
-  }
-}
-
-function renderSoldOutSummary(result){
-  const rows = Array.isArray(result.rows) ? result.rows : (Array.isArray(result.data) ? result.data : []);
-  const summary = result.summary || {};
-
-  if($('soStatTotal')) $('soStatTotal').textContent = summary.totalItems ?? rows.length;
-  if($('soStatCritical')) $('soStatCritical').textContent = summary.critical ?? rows.filter(x=>x.priority==='CRITICAL').length;
-  if($('soStatHigh')) $('soStatHigh').textContent = summary.high ?? rows.filter(x=>x.priority==='HIGH').length;
-  if($('soStatMonitor')) $('soStatMonitor').textContent = summary.monitor ?? rows.filter(x=>x.priority==='MONITOR').length;
-
-  const target = $('soldOutTableWrap');
-  if(!target) return;
-  if(!rows.length){
-    target.innerHTML = '<div class="empty">Belum ada data sold out sesuai filter.</div>';
-    return;
-  }
-
-  const priorityBadge = p => {
-    const map = {
-      CRITICAL:'🔴 CRITICAL',
-      HIGH:'🟠 HIGH',
-      MONITOR:'🟡 MONITOR',
-      NORMAL:'⚪ NORMAL'
-    };
-    return map[p] || p || '-';
-  };
-
-  target.innerHTML = `
-    <div style="overflow:auto">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>PRIORITAS</th>
-            <th>STORE</th>
-            <th>KODE MATERIAL</th>
-            <th>NAMA BARANG</th>
-            <th>TOTAL HARI SO</th>
-            <th>LONGEST STREAK</th>
-            <th>PERIODE SO</th>
-            <th>SO TERAKHIR</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(x=>`<tr>
-            <td><b>${priorityBadge(escapeHtml(x.priority||''))}</b></td>
-            <td>${escapeHtml(x.store||'-')}</td>
-            <td>${escapeHtml(x.kodeMaterial||'-')}</td>
-            <td><b>${escapeHtml(x.namaBarang||'-')}</b></td>
-            <td>${escapeHtml(String(x.totalHariSO ?? 0))}</td>
-            <td>${escapeHtml(String(x.longestStreak ?? 0))} hari</td>
-            <td>${escapeHtml(x.periodeSO||'-')}</td>
-            <td>${escapeHtml(x.soTerakhir||'-')}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
 
 function showSmallwareTab(tab){
   const tabs = ['request','history','frequency'];
@@ -2855,13 +2631,8 @@ async function saveSmallwareRequestUI(){
   const name = $('swName').value.trim();
   const qty = Number($('swQty').value||0);
   const type = $('swType').value;
-  const targetStore = selectedStore('swStore');
-  const file = getPhotoFile('swPhoto');
+  const file = $('swPhoto').files[0];
 
-  if(!targetStore){
-    toast('Pilih Store terlebih dahulu.');
-    return;
-  }
   if(!name){
     toast('Nama Smallware wajib diisi.');
     return;
@@ -3003,7 +2774,8 @@ function resetSmallwareForm(){
   $('swName').value='';
   $('swQty').value='';
   $('swType').value='';
-  clearPhotoPicker('swPhoto','swPhotoPreview');
+  $('swPhoto').value='';
+  $('swPhotoPreview').innerHTML='';
   $('swNote').value='';
   toggleSmallwarePhoto();
 }
