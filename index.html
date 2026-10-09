@@ -1838,9 +1838,11 @@ function resetWaste(){
 
 /* MAINTENANCE */
 async function saveMaintenance(){
+  // Maintenance harus memakai store yang dipilih pada form, bukan store akun (bisa ALL).
   const targetStore=selectedStore('mtStore');
-  if(!targetStore){
-    toast('Pilih Store terlebih dahulu.');
+  const validMaintenanceStores=['CITYWALK','CITRA TOWER','MENTENG'];
+  if(!targetStore || !validMaintenanceStores.includes(targetStore)){
+    toast('Pilih Store Maintenance yang valid: CITYWALK, CITRA TOWER, atau MENTENG.');
     return;
   }
 
@@ -1859,7 +1861,7 @@ async function saveMaintenance(){
       noSC,
       tanggalInput:$('mtInputDate').value,
       tanggalKejadian:$('mtIncidentDate').value,
-      store:targetStore, // Gunakan store yang dipilih pada form Maintenance, bukan store akun (bisa ALL).
+      store:targetStore, // Backend menerima store terpilih: CITYWALK / CITRA TOWER / MENTENG.
       kategori:$('mtCategory').value,
       itemAsset:$('mtAsset').value.trim(),
       jenisKerusakan:$('mtDamage').value.trim(),
