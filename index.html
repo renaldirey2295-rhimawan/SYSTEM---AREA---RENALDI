@@ -277,23 +277,6 @@ body{
   #nav button{padding:10px 12px}
 }
 
-
-/* MODULE SUBMENU UI V17 */
-.module-menu{margin-bottom:18px}
-.module-hero{position:relative}
-.module-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.module-option{display:flex;align-items:center;gap:14px;text-align:left;min-height:92px;padding:18px;border:1px solid rgba(255,255,255,.85);border-radius:18px;box-shadow:0 8px 22px rgba(35,54,80,.10);font-weight:800;color:#26374d;transition:transform .18s,box-shadow .18s}
-.module-option:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(35,54,80,.16)}
-.module-option .option-icon{font-size:26px;width:44px;height:44px;display:grid;place-items:center;background:rgba(255,255,255,.7);border-radius:14px;flex-shrink:0}
-.module-option .option-copy small{display:block;font-weight:500;color:#586b82;margin-top:5px;line-height:1.4}
-.module-option.c1{background:#dceafb}.module-option.c2{background:#dff4e6}.module-option.c3{background:#fff0d6}.module-option.c4{background:#fbe4da}.module-option.c5{background:#eadff8}.module-option.c6{background:#d8f1f3}.module-option.c7{background:#f8e0ed}
-.module-backline{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.module-subbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.module-subbar .btn{box-shadow:0 3px 10px rgba(35,54,80,.08)}
-.module-subbar .selected{outline:2px solid #7faedb;outline-offset:1px}
-body{background-attachment:fixed}
-@media(max-width:750px){.module-options{grid-template-columns:repeat(2,minmax(0,1fr))}.module-option{padding:14px;min-height:82px}}
-@media(max-width:480px){.module-options{grid-template-columns:1fr}.module-option{min-height:72px}}
 </style>
 
 <style>
@@ -340,11 +323,36 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 @media(prefers-reduced-motion:reduce){body::before{transition:none}}
 </style>
 
+<style>
+
+/* V17 SUBMENU + RESPONSIVE VIEW TRANSITIONS */
+.module-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 16px;}
+.module-menu-card{display:flex;align-items:center;gap:14px;text-align:left;width:100%;min-width:0;padding:16px 18px;border:1px solid rgba(255,255,255,.78);border-radius:18px;box-shadow:0 7px 20px rgba(38,55,80,.09);transition:transform .18s ease,box-shadow .18s ease;}
+.module-menu-card:hover{transform:translateY(-2px);box-shadow:0 11px 24px rgba(38,55,80,.14)}
+.module-menu-card .module-menu-icon{width:46px;height:46px;flex:0 0 46px;border-radius:14px;background:rgba(255,255,255,.72);display:grid;place-items:center;font-size:26px}
+.module-menu-card strong{display:block;font-size:15px;margin-bottom:4px;color:#28384e}
+.module-menu-card small{display:block;font-size:12px;line-height:1.4;color:#526780;font-weight:500}
+.module-menu-card.tone-green{background:#dff5e8}.module-menu-card.tone-blue{background:#e0edff}.module-menu-card.tone-orange{background:#fff0d8}.module-menu-card.tone-peach{background:#fbe3dc}.module-menu-card.tone-purple{background:#eee5ff}.module-menu-card.tone-cyan{background:#dff5f6}.module-menu-card.tone-pink{background:#ffe5f0}
+.module-backbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.module-backbar .btn{background:rgba(245,248,252,.94);border:1px solid #dfe7f1;color:#506176}
+.module-page-title{font-size:13px;font-weight:800;letter-spacing:.04em;color:#64748b;text-transform:uppercase}
+#loading{background:rgba(238,243,250,.68);backdrop-filter:blur(8px);transition:opacity .15s ease}
+#loading .spinner{display:flex;align-items:center;gap:12px;padding:18px 22px;border:1px solid rgba(255,255,255,.9);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 15px 45px rgba(36,55,82,.18)}
+.loading-ring{width:22px;height:22px;border:3px solid #dce7f5;border-top-color:#608fc8;border-radius:50%;animation:moduleSpin .7s linear infinite;flex:0 0 22px}
+@keyframes moduleSpin{to{transform:rotate(360deg)}}
+.page-section.module-transition-in{animation:moduleFadeIn .18s ease-out}
+@keyframes moduleFadeIn{from{opacity:.65;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.module-history-filter{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:12px;background:rgba(246,249,253,.92);border:1px solid #e2e9f2;border-radius:14px}
+.module-history-filter label{font-size:11px;font-weight:800;color:#68788d;white-space:nowrap}
+.module-history-filter select{width:auto;min-width:190px;max-width:100%}
+@media(max-width:650px){.module-menu{grid-template-columns:1fr;gap:10px}.module-menu-card{padding:14px}.module-menu-card .module-menu-icon{width:42px;height:42px;flex-basis:42px}.module-backbar{align-items:stretch}.module-backbar .btn{width:100%}.module-history-filter{align-items:stretch}.module-history-filter select{width:100%;min-width:0}.page-section.module-transition-in{animation-duration:.12s}}
+
+</style>
 </head>
 <body>
 
 <div id="loading" class="loading hidden">
-  <div class="spinner">⏳ Memproses...</div>
+  <div class="spinner"><span class="loading-ring"></span><span>Memuat tampilan...</span></div>
 </div>
 
 <div id="toast" class="toast hidden"></div>
@@ -379,22 +387,13 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
   <main class="page">
     <nav class="nav" id="nav">
       <button data-page="dashboard" onclick="showPage('dashboard')">🏠 Dashboard</button>
-      <button data-page="sales" onclick="showModuleMenu('sales')">💰 Sales</button>
-      <button data-page="waste" onclick="showModuleMenu('waste')">♻️ Waste</button>
-      <button data-page="maintenance" onclick="showModuleMenu('maintenance')">🔧 Maintenance</button>
-      <button data-page="kpi" onclick="showModuleMenu('kpi')">📊 KPI Store</button>
-      <button data-page="walkthrough" onclick="showModuleMenu('walkthrough')">📝 Walkthrough</button>
-      <button data-page="smallware" onclick="showModuleMenu('smallware')">🍴 Smallware</button>
+      <button data-page="sales" onclick="showPage('sales')">💰 Sales</button>
+      <button data-page="waste" onclick="showPage('waste')">♻️ Waste</button>
+      <button data-page="maintenance" onclick="showPage('maintenance')">🔧 Maintenance</button>
+      <button data-page="kpi" onclick="showPage('kpi')">📊 KPI Store</button>
+      <button data-page="walkthrough" onclick="showPage('walkthrough')">📝 Walkthrough</button>
+      <button data-page="smallware" onclick="showPage('smallware')">🍴 Smallware</button>
     </nav>
-
-    <section id="moduleMenu" class="module-menu hidden">
-      <div class="hero module-hero">
-        <button class="btn btn-light" onclick="backToMainMenu()">← Kembali ke Menu Utama</button>
-        <h2 id="moduleMenuTitle" style="margin-top:14px">Menu</h2>
-        <p id="moduleMenuSub">Pilih fungsi yang ingin dibuka.</p>
-      </div>
-      <div id="moduleMenuOptions" class="module-options"></div>
-    </section>
 
     <div class="store-only-note">
       🌐 <b>STORE PORTAL</b> — Tanpa username & password.
@@ -603,7 +602,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
       </div>
     </section>
 
-      <div class="card hidden" id="salesHistoryCard" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-waste" class="page-section hidden">
@@ -1267,87 +1266,7 @@ function initPublicPortal(){
 }
 
 
-const MODULE_CONFIG = {
-  sales:{title:'💰 Sales',sub:'Pilih input sales atau lihat history berdasarkan store.',options:[['input','➕','Input Sales','Input laporan sales harian.','c2'],['history','📋','History Sales','Riwayat transaksi dan filter store.','c1']]},
-  waste:{title:'♻️ Waste',sub:'Pilih dashboard waste atau history waste.',options:[['dashboard','📊','Dashboard Waste','Ringkasan dan item waste.','c3'],['history','📋','History Waste','Riwayat waste seluruh store.','c1']]},
-  maintenance:{title:'🔧 Maintenance',sub:'Kelola ticket dan lihat riwayat perbaikan.',options:[['input','➕','Input Ticket','Buat ticket maintenance baru.','c4'],['history','📋','History Maintenance','Riwayat ticket semua store.','c1'],['search','🔎','Cari Ticket','Cari ticket berdasarkan nomor SC.','c5']]},
-  kpi:{title:'📊 KPI Store',sub:'Upload KPI atau lihat riwayat upload.',options:[['input','📤','Input KPI','Upload foto dashboard KPI.','c5'],['history','📋','History KPI','Riwayat KPI semua store.','c1']]},
-  walkthrough:{title:'📝 Walkthrough',sub:'Pilih daftar temuan atau detail dan tindak lanjut.',options:[['history','📋','History Temuan','Daftar temuan berdasarkan store.','c6'],['detail','🔎','Detail Temuan','Buka daftar temuan untuk memilih detail dan follow up.','c1']]},
-  smallware:{title:'🍴 Smallware',sub:'Kelola request, history, dan frequency Smallware.',options:[['request','➕','Request Baru','Buat permintaan Smallware.','c7'],['history','📋','History Request','Lihat status semua request.','c1'],['frequency','📈','Frequency','Lihat frekuensi kebutuhan Smallware.','c5']]}
-};
-let activeModule = '';
-function showModuleMenu(module){
-  const cfg=MODULE_CONFIG[module]; if(!cfg)return;
-  activeModule=module;
-  document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
-  $('moduleMenu').classList.remove('hidden');
-  $('moduleMenuTitle').textContent=cfg.title;
-  $('moduleMenuSub').textContent=cfg.sub;
-  $('moduleMenuOptions').innerHTML=cfg.options.map(o=>`<button class="module-option ${o[4]}" onclick="showModuleView('${module}','${o[0]}')"><span class="option-icon">${o[1]}</span><span class="option-copy">${o[2]}<small>${o[3]}</small></span></button>`).join('');
-  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===module));
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function backToMainMenu(){
-  $('moduleMenu').classList.add('hidden');
-  showPage('dashboard');
-}
-function setCardVisible(el,visible){if(el)el.classList.toggle('hidden',!visible)}
-function moduleCardByText(section,needle){return [...(section?.querySelectorAll('.card')||[])].find(c=>(c.innerText||'').toLowerCase().includes(needle.toLowerCase()))}
-function showModuleView(module,view){
-  $('moduleMenu').classList.add('hidden');
-  document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
-  const section=$('page-'+module); if(section)section.classList.remove('hidden');
-  // Hide module contents first, then expose only the selected view.
-  if(section){
-    section.querySelectorAll(':scope > .hero, :scope > .card, :scope > .stats, :scope > .grid, :scope > .nav, :scope > .form-grid').forEach(el=>el.classList.add('hidden'));
-    section.querySelectorAll('.card').forEach(el=>el.classList.add('hidden'));
-  }
-  const salesHistory=$('salesHistoryCard') || $('salesHistoryBody')?.closest('.card');
-  if(salesHistory)salesHistory.classList.add('hidden');
-  if(module==='sales'){
-    const hero=section.querySelector('.hero'), inputCard=section.querySelector(':scope > .card');
-    if(view==='input'){setCardVisible(hero,true);setCardVisible(inputCard,true);$('salesDate').value=todayISO();}
-    if(view==='history'){setCardVisible(salesHistory,true);}
-    if(view==='history')loadSalesHistory();
-  } else if(module==='waste'){
-    const hero=section.querySelector('.hero');
-    const history=moduleCardByText(section,'History Waste');
-    if(view==='dashboard'){
-      setCardVisible(hero,true);section.querySelectorAll(':scope > .stats,:scope > .grid,:scope > .card').forEach(el=>{if(el!==history)el.classList.remove('hidden')});
-      if(typeof initWastePage==='function')initWastePage();
-    } else {setCardVisible(history,true);loadWasteHistory();}
-  } else if(module==='maintenance'){
-    const hero=section.querySelector('.hero'), cards=[...section.querySelectorAll(':scope > .card')];
-    const input=cards.find(c=>c.innerText.includes('Buat Maintenance Ticket'));
-    const search=cards.find(c=>c.innerText.includes('Cari Ticket berdasarkan No SC'));
-    const history=cards.find(c=>c.innerText.includes('History Maintenance'));
-    if(view==='input'){setCardVisible(hero,true);setCardVisible(input,true)}
-    if(view==='search'){setCardVisible(search,true)}
-    if(view==='history'){setCardVisible(history,true);loadMaintenanceHistory()}
-  } else if(module==='kpi'){
-    const hero=section.querySelector('.hero'),cards=[...section.querySelectorAll(':scope > .card')];
-    const input=cards.find(c=>c.querySelector('#kpiPhoto'));
-    const history=cards.find(c=>c.innerText.includes('History KPI'));
-    if(view==='input'){setCardVisible(hero,true);setCardVisible(input,true)}
-    if(view==='history'){setCardVisible(history,true);loadKPIHistory()}
-  } else if(module==='walkthrough'){
-    section.querySelectorAll(':scope > .card').forEach(c=>c.classList.remove('hidden'));
-    section.querySelector('.hero')?.classList.remove('hidden');
-    if(view==='history')initWalkthrough();
-    if(view==='detail'){initWalkthrough();setTimeout(()=>{const detail=$('walkthroughDetail');if(detail)detail.classList.remove('hidden')},0)}
-  } else if(module==='smallware'){
-    section.querySelector('.hero')?.classList.remove('hidden');
-    section.querySelector('.stats')?.classList.remove('hidden');
-    section.querySelector('.nav')?.classList.remove('hidden');
-    ['swPanelRequest','swPanelHistory','swPanelFrequency','swDetail'].forEach(id=>$(id)?.classList.add('hidden'));
-    const tab=view==='request'?'request':view==='frequency'?'frequency':'history';
-    showSmallwareTab(tab);
-  }
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
 function showPage(page){
-  if($('moduleMenu')) $('moduleMenu').classList.add('hidden');
   document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
   const target = $('page-'+page);
   if(target) target.classList.remove('hidden');
@@ -2986,6 +2905,200 @@ document.addEventListener('DOMContentLoaded', function(){
   applyScenic();
   window.setInterval(applyScenic, 60 * 1000);
 })();
+
+
+
+/* =========================================================
+   V17: MODULE SUBMENUS, HISTORY ACCESS, AND FAST TRANSITIONS
+   Keeps existing forms, history loaders, and backend calls.
+   ========================================================= */
+let __moduleMenusReady = false;
+const __moduleViewState = { module:'dashboard', view:'menu' };
+const __moduleSpecs = {
+  sales:{title:'💰 Sales',subtitle:'Pilih input sales atau lihat history berdasarkan store.',items:[
+    {key:'input',icon:'➕',title:'Input Sales',desc:'Input laporan sales harian.',tone:'green'},
+    {key:'history',icon:'📋',title:'History Sales',desc:'Riwayat transaksi dan filter store.',tone:'blue'}]},
+  waste:{title:'♻️ Waste',subtitle:'Pilih dashboard Waste atau buka riwayat seluruh store.',items:[
+    {key:'dashboard',icon:'📊',title:'Dashboard Waste',desc:'Ringkasan, top waste, dan periode terbaru.',tone:'orange'},
+    {key:'history',icon:'📋',title:'History Waste',desc:'Riwayat Waste semua store.',tone:'blue'}]},
+  maintenance:{title:'🔧 Maintenance',subtitle:'Buat ticket, cari ticket, atau lihat history maintenance.',items:[
+    {key:'input',icon:'➕',title:'Input Ticket',desc:'Buat ticket kerusakan/perbaikan baru.',tone:'peach'},
+    {key:'history',icon:'📋',title:'History Maintenance',desc:'Riwayat ticket seluruh store.',tone:'blue'},
+    {key:'search',icon:'🔎',title:'Cari Ticket',desc:'Cari ticket berdasarkan nomor SC.',tone:'purple'}]},
+  kpi:{title:'📊 KPI Store',subtitle:'Kelola upload KPI dan periksa riwayat setiap store.',items:[
+    {key:'input',icon:'📤',title:'Input KPI',desc:'Upload foto dashboard KPI store.',tone:'purple'},
+    {key:'history',icon:'📋',title:'History KPI',desc:'Riwayat upload KPI semua store.',tone:'blue'}]},
+  walkthrough:{title:'📝 Walkthrough',subtitle:'Buka temuan dan tindak lanjut walkthrough.',items:[
+    {key:'history',icon:'📋',title:'History Temuan',desc:'Cari dan lihat temuan berdasarkan store.',tone:'cyan'},
+    {key:'followup',icon:'✅',title:'Detail / Follow Up Temuan',desc:'Pilih temuan untuk melihat detail dan tindak lanjut.',tone:'green'}]},
+  smallware:{title:'🍴 Smallware',subtitle:'Pilih request baru, history request, atau frequency.',items:[
+    {key:'request',icon:'➕',title:'Request Baru',desc:'Buat permintaan Smallware.',tone:'green'},
+    {key:'history',icon:'📋',title:'History Request',desc:'Lihat status seluruh request.',tone:'blue'},
+    {key:'frequency',icon:'📈',title:'Frequency',desc:'Analisis frekuensi request Smallware.',tone:'purple'}]}
+};
+function __el(id){return document.getElementById(id)}
+function __makeMenuCard(module,key,item){
+  const b=document.createElement('button');b.type='button';b.className='module-menu-card tone-'+item.tone;
+  b.innerHTML='<span class="module-menu-icon">'+item.icon+'</span><span><strong>'+item.title+'</strong><small>'+item.desc+'</small></span>';
+  b.addEventListener('click',()=>openModuleView(module,key));return b;
+}
+function __findCardByChild(id){const e=__el(id);return e?e.closest('.card'):null}
+function __moveToPanel(panel,node){if(panel&&node&&node!==panel&&!panel.contains(node))panel.appendChild(node)}
+function __newPanel(id){const p=document.createElement('div');p.id=id;p.className='module-content-panel hidden';return p}
+function __makeLanding(section,module){
+  const spec=__moduleSpecs[module];if(!spec||section.querySelector('.module-menu'))return;
+  const hero=section.querySelector('.hero');
+  if(hero){const h=hero.querySelector('h2');const p=hero.querySelector('p');if(h)h.textContent=spec.title;if(p)p.textContent=spec.subtitle;}
+  const menu=document.createElement('div');menu.className='module-menu';menu.setAttribute('aria-label','Pilihan '+module);
+  spec.items.forEach(item=>menu.appendChild(__makeMenuCard(module,item.key,item)));
+  if(hero)hero.insertAdjacentElement('afterend',menu);else section.insertBefore(menu,section.firstChild);
+  const back=document.createElement('div');back.className='module-backbar hidden';back.innerHTML='<button type="button" class="btn btn-light" onclick="backToModuleMenu(\''+module+'\')">← Kembali ke pilihan '+spec.title.replace(/^\S+\s*/, '')+'</button><span class="module-page-title"></span>';
+  menu.insertAdjacentElement('afterend',back);
+  section.dataset.moduleName=module;
+  section._moduleLanding=menu;section._moduleBack=back;section._moduleHero=hero;
+}
+function __setupModulePanels(){
+  if(__moduleMenusReady)return;
+  // Repair the legacy Sales history block, which in some builds sits outside page-sales.
+  const salesSection=__el('page-sales');const salesHistory=__findCardByChild('salesHistoryBody');
+  if(salesSection&&salesHistory&&!salesSection.contains(salesHistory))salesSection.appendChild(salesHistory);
+  const configs={
+    sales:{panels:{input:()=>[__findCardByChild('salesDineIn')],history:()=>[__findCardByChild('salesHistoryBody')] }},
+    waste:{panels:{dashboard:()=>[],history:()=>[__findCardByChild('wasteHistoryBody')]}},
+    maintenance:{panels:{input:()=>[__findCardByChild('mtNoSC')],search:()=>[__findCardByChild('searchSC')],history:()=>[__findCardByChild('maintenanceHistoryBody')]}},
+    kpi:{panels:{input:()=>[__findCardByChild('kpiStore')],history:()=>[__findCardByChild('kpiHistoryBody')]}},
+    walkthrough:{panels:{history:()=>[],followup:()=>[]}},
+    smallware:{panels:{request:()=>[__el('swPanelRequest')],history:()=>[__el('swPanelHistory')],frequency:()=>[__el('swPanelFrequency')]}}
+  };
+  Object.keys(configs).forEach(module=>{
+    const section=__el('page-'+module);if(!section)return;
+    __makeLanding(section,module);
+    const spec=configs[module];section._modulePanels={};
+    if(module==='waste'){
+      const history=__findCardByChild('wasteHistoryBody');
+      const dash=__newPanel('module-waste-dashboard-panel');
+      const nodes=Array.from(section.children).filter(n=>n!==section._moduleHero&&n!==section._moduleLanding&&n!==section._moduleBack&&n!==history);
+      nodes.forEach(n=>dash.appendChild(n));
+      if(history){const hp=__newPanel('module-waste-history-panel');hp.appendChild(history);section.appendChild(hp);section._modulePanels.history=hp;}
+      section.appendChild(dash);section._modulePanels.dashboard=dash;
+    }else if(module==='walkthrough'){
+      const detail=__el('walkthroughDetail');
+      const main=__newPanel('module-walkthrough-history-panel');
+      Array.from(section.children).filter(n=>n!==section._moduleHero&&n!==section._moduleLanding&&n!==section._moduleBack&&n!==detail).forEach(n=>main.appendChild(n));
+      if(detail&&detail.parentElement!==section){};
+      section.appendChild(main);section._modulePanels.history=main;
+      // Follow-up reuses the temuan list and detail card so selecting a temuan still works.
+      const follow=__newPanel('module-walkthrough-followup-panel');
+      const note=document.createElement('div');note.className='store-only-note';note.textContent='Pilih temuan dari daftar untuk membuka detail dan tindak lanjut.';follow.appendChild(note);
+      if(detail)follow.appendChild(detail);
+      section.appendChild(follow);section._modulePanels.followup=follow;
+    }else{
+      Object.keys(spec.panels).forEach(key=>{
+        const panel=__newPanel('module-'+module+'-'+key+'-panel');
+        const nodes=(spec.panels[key]&&spec.panels[key]())||[];
+        nodes.filter(Boolean).forEach(n=>__moveToPanel(panel,n));
+        section.appendChild(panel);section._modulePanels[key]=panel;
+      });
+      if(module==='smallware'){
+        // Smallware's own request/history/frequency tabs are retained inside the selected submenu view.
+        const tabs=section.querySelector('.stats')?.nextElementSibling;
+        if(tabs&&tabs.classList.contains('nav'))tabs.classList.add('smallware-subtabs');
+      }
+    }
+    // History store filters are client-side and never alter source data.
+    if(module==='sales')__addHistoryFilter('sales',__findCardByChild('salesHistoryBody'));
+    if(module==='waste')__addHistoryFilter('waste',__findCardByChild('wasteHistoryBody'));
+    if(module==='maintenance')__addHistoryFilter('maintenance',__findCardByChild('maintenanceHistoryBody'));
+    if(module==='kpi')__addHistoryFilter('kpi',__findCardByChild('kpiHistoryBody'));
+  });
+  __moduleMenusReady=true;
+}
+function __addHistoryFilter(module,card){
+  if(!card||card.querySelector('.module-history-filter'))return;
+  const labels={sales:'History Sales',waste:'History Waste',maintenance:'History Maintenance',kpi:'History KPI'};
+  const box=document.createElement('div');box.className='module-history-filter';
+  const label=document.createElement('label');label.textContent='FILTER STORE';label.htmlFor=module+'HistoryStoreFilter';
+  const select=document.createElement('select');select.id=module+'HistoryStoreFilter';select.innerHTML='<option value="ALL">SEMUA STORE</option><option value="CITYWALK">CITYWALK</option><option value="CITRA TOWER">CITRA TOWER</option><option value="MENTENG">MENTENG</option>';
+  select.addEventListener('change',()=>__filterHistoryRows(module));box.append(label,select);const tableWrap=card.querySelector('.table-wrap');if(tableWrap)card.insertBefore(box,tableWrap);else card.appendChild(box);
+}
+function __filterHistoryRows(module){
+  const select=__el(module+'HistoryStoreFilter');if(!select)return;
+  const wanted=select.value;const body=__el(({sales:'salesHistoryBody',waste:'wasteHistoryBody',maintenance:'maintenanceHistoryBody',kpi:'kpiHistoryBody'})[module]);if(!body)return;
+  Array.from(body.querySelectorAll('tr')).forEach(tr=>{const first=(tr.cells[0]?.textContent||'').trim().toUpperCase();const storeIndex=module==='sales'?0:module==='waste'?5:module==='maintenance'?2:1;const store=(tr.cells[storeIndex]?.textContent||'').trim().toUpperCase();tr.hidden=!!(wanted!=='ALL'&&store!==wanted&& !/BELUM ADA HISTORY/.test(first));});
+}
+function __setModuleView(module,view){
+  const section=__el('page-'+module);if(!section)return;
+  document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
+  section.classList.remove('hidden');section.classList.remove('module-transition-in');void section.offsetWidth;section.classList.add('module-transition-in');
+  const menu=section._moduleLanding,back=section._moduleBack,hero=section._moduleHero;
+  if(menu)menu.classList.toggle('hidden',view!=='menu');if(back)back.classList.toggle('hidden',view==='menu');
+  if(hero)hero.classList.remove('hidden');
+  Object.entries(section._modulePanels||{}).forEach(([key,panel])=>panel.classList.toggle('hidden',view==='menu'||key!==view));
+  if(module==='smallware'){
+    const stats=section.querySelector('.stats');const tabs=section.querySelector('.smallware-subtabs');
+    if(stats)stats.classList.toggle('hidden',view==='menu');if(tabs)tabs.classList.toggle('hidden',view==='menu');
+  }
+  if(module==='walkthrough'){
+    const detail=__el('walkthroughDetail');if(detail&&view==='followup')detail.classList.remove('hidden');
+  }
+  if(view==='menu'){
+    // For Waste, dashboard and history panels are hidden while choosing a submenu.
+    if(back)back.querySelector('.module-page-title').textContent='';
+  }else if(back){const title=__moduleSpecs[module]?.items.find(x=>x.key===view)?.title||view;back.querySelector('.module-page-title').textContent=title;}
+  __moduleViewState.module=module;__moduleViewState.view=view;
+  document.querySelectorAll('#nav button').forEach(btn=>btn.classList.toggle('active',btn.dataset.page===module));
+}
+function backToModuleMenu(module){
+  showLoading(true);
+  requestAnimationFrame(()=>{__setModuleView(module,'menu');setTimeout(()=>showLoading(false),100);});
+}
+async function openModuleView(module,view){
+  __setupModulePanels();showLoading(true);
+  requestAnimationFrame(async()=>{
+    try{
+      __setModuleView(module,view);
+      if(module==='sales'){
+        if(view==='input'&&__el('salesDate'))__el('salesDate').value=todayISO();
+        if(view==='history')await loadSalesHistory();
+      }else if(module==='waste'){
+        if(view==='dashboard'){initWastePage();await loadWasteDashboard();}
+        if(view==='history')await loadWasteHistory();
+      }else if(module==='maintenance'){
+        if(view==='input'){if(__el('mtInputDate'))__el('mtInputDate').value=todayISO();}
+        if(view==='history')await loadMaintenanceHistory();
+      }else if(module==='kpi'){
+        if(view==='input'){if(__el('kpiYear'))__el('kpiYear').value=new Date().getFullYear();}
+        if(view==='history')await loadKPIHistory();
+      }else if(module==='walkthrough'){
+        if(view==='history')await initWalkthrough();
+        if(view==='followup')await initWalkthrough();
+      }else if(module==='smallware'){
+        if(typeof initSmallware==='function')await initSmallware();
+        if(typeof showSmallwareTab==='function')showSmallwareTab(view);
+        if(view==='history'&&typeof loadSmallware==='function')await loadSmallware();
+        if(view==='frequency'&&typeof loadSmallwareFrequency==='function')await loadSmallwareFrequency();
+      }
+      __filterHistoryRows(module);
+    }catch(err){console.error(err);toast('Gagal membuka tampilan: '+(err.message||err));}
+    finally{showLoading(false);}
+  });
+}
+function showPage(page){
+  __setupModulePanels();
+  if(page==='dashboard'){
+    document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
+    const dash=__el('page-dashboard');if(dash)dash.classList.remove('hidden');
+    document.querySelectorAll('#nav button').forEach(btn=>btn.classList.toggle('active',btn.dataset.page==='dashboard'));
+    __moduleViewState.module='dashboard';__moduleViewState.view='dashboard';
+    if(typeof loadDashboard==='function')loadDashboard();return;
+  }
+  if(__moduleSpecs[page]){
+    __setModuleView(page,'menu');
+    return;
+  }
+  document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
+  const target=__el('page-'+page);if(target)target.classList.remove('hidden');
+}
 
 </script>
 </body>
