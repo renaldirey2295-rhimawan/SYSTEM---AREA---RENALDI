@@ -354,6 +354,41 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 @media(max-width:650px){.module-menu{grid-template-columns:1fr;gap:10px}.module-menu-card{padding:14px}.module-menu-card .module-menu-icon{width:42px;height:42px;flex-basis:42px}.module-backbar{align-items:stretch}.module-backbar .btn{width:100%}.module-history-filter{align-items:stretch}.module-history-filter select{width:100%;min-width:0}.page-section.module-transition-in{animation-duration:.12s}}
 
 </style>
+
+<style>
+/* V18.3 VISUAL ONLY: colorful sales rows and all menu/action buttons */
+#salesHistoryBody tr:nth-child(odd) td{background:#f0f7ff}
+#salesHistoryBody tr:nth-child(even) td{background:#ffffff}
+#salesHistoryBody tr:hover td{background:#dceeff;transition:background .15s ease}
+#salesHistoryBody td:first-child{font-weight:800;color:#315d91;background:#e4efff}
+#salesHistoryBody td:nth-child(12),#salesHistoryBody td:nth-child(13){font-weight:800;color:#246847}
+#salesHistoryBody tr:nth-child(odd) td:first-child{background:#dceafb}
+#salesHistoryBody tr:hover td:first-child{background:#c8e0ff}
+/* Main menu buttons each retain their own color identity */
+#nav button{border:1px solid transparent!important;font-weight:800!important;box-shadow:0 4px 12px rgba(40,60,90,.12);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+#nav button:nth-child(1){background:#e4efff!important;color:#315d91!important;border-color:#cbdfff!important}
+#nav button:nth-child(2){background:#dff5e8!important;color:#246847!important;border-color:#c1e8d1!important}
+#nav button:nth-child(3){background:#fff0d8!important;color:#8a5a16!important;border-color:#f4ddb1!important}
+#nav button:nth-child(4){background:#fbe3dc!important;color:#914d3d!important;border-color:#f0c9bd!important}
+#nav button:nth-child(5){background:#eee5ff!important;color:#6745a0!important;border-color:#d9cafa!important}
+#nav button:nth-child(6){background:#dff5f6!important;color:#216d75!important;border-color:#bfe7e9!important}
+#nav button:nth-child(7){background:#ffe5f0!important;color:#91466b!important;border-color:#f5c9dd!important}
+#nav button:hover,.module-menu-card:hover{filter:saturate(1.12);transform:translateY(-2px);box-shadow:0 8px 18px rgba(40,60,90,.16)}
+#nav button.active{outline:2px solid rgba(72,103,145,.25);outline-offset:1px;filter:saturate(1.15);box-shadow:0 6px 15px rgba(40,60,90,.16)}
+/* Buttons across all modules */
+button.btn-primary{background:#dceafb!important;color:#315675!important;border:1px solid #c6dbef!important}
+button.btn-green{background:#dff5e8!important;color:#246847!important;border:1px solid #c1e8d1!important}
+button.btn-purple{background:#eee5ff!important;color:#6745a0!important;border:1px solid #d9cafa!important}
+button.btn-orange{background:#fff0d8!important;color:#8a5a16!important;border:1px solid #f4ddb1!important}
+button.btn-peach{background:#fbe3dc!important;color:#914d3d!important;border:1px solid #f0c9bd!important}
+button.btn-danger{background:#f9dddd!important;color:#873d3d!important;border:1px solid #efc5c5!important}
+button.btn-light{background:#edf3fb!important;color:#425a75!important;border:1px solid #d7e3f1!important}
+button.btn:not(:disabled){box-shadow:0 3px 9px rgba(45,65,90,.09)}
+button.btn:not(:disabled):hover{filter:saturate(1.12);box-shadow:0 7px 15px rgba(45,65,90,.15)}
+.module-menu-card{border:1px solid rgba(255,255,255,.9)!important}
+@media(prefers-reduced-motion:reduce){#nav button,button.btn,#salesHistoryBody tr td{transition:none!important}}
+</style>
+
 </head>
 <body>
 
