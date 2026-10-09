@@ -843,7 +843,7 @@ button.btn:not(:disabled):hover{filter:saturate(1.12);box-shadow:0 7px 15px rgba
         </div>
         <div id="maintenanceResult" style="margin-top:14px"></div>
       </div>
-      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance Semua Store</h3><div class="small">Seluruh ticket Maintenance semua Store.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Maintenance Semua Store</h3><div class="small">Seluruh ticket Maintenance semua Store.</div></div><button class="btn btn-light" onclick="loadMaintenanceHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1200px"><thead><tr><th>TGL INPUT</th><th>NO SC</th><th>STORE</th><th>KATEGORI</th><th>ASSET</th><th>KERUSAKAN</th><th>PRIORITAS</th><th>STATUS</th><th>TEKNISI/VENDOR</th><th>TGL SELESAI</th><th>EXPORT WA</th></tr></thead><tbody id="maintenanceHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-kpi" class="page-section hidden">
@@ -1783,7 +1783,31 @@ async function loadDirectDatabaseHistory(moduleName){
 
 async function loadSalesHistory(){if(!state.user)return;try{$('salesHistoryBody').innerHTML='<tr><td colspan="15" class="empty">Memuat history Sales...</td></tr>';const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(formatDateWIB(x.tanggal))}</td><td>${formatRupiah(x.dineIn)}</td><td>${Number(x.tcDineIn||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.delivery)}</td><td>${Number(x.tcDelivery||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.takeAway)}</td><td>${Number(x.tcTakeAway||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.connectBO)}</td><td>${Number(x.tcConnectBO||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td><b>${Number(x.totalTc||0).toLocaleString('id-ID')}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="15" class="empty">Belum ada history Sales.</td></tr>';__filterHistoryRows('sales');}catch(err){$('salesHistoryBody').innerHTML='<tr><td colspan="15" class="empty">Gagal memuat history Sales.</td></tr>';toast('History Sales: '+err.message)}}
 async function loadWasteHistory(){if(!state.user)return;try{$('wasteHistoryBody').innerHTML='<tr><td colspan="6" class="empty">Memuat history Waste...</td></tr>';const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=Array.isArray(r.allRows)?r.allRows:(Array.isArray(r.data)?r.data:[]);$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';__filterHistoryRows('waste');}catch(err){$('wasteHistoryBody').innerHTML='<tr><td colspan="6" class="empty">Gagal memuat history Waste.</td></tr>';toast('History Waste: '+err.message)}}
-async function loadMaintenanceHistory(){if(!state.user)return;try{$('maintenanceHistoryBody').innerHTML='<tr><td colspan="10" class="empty">Memuat history Maintenance...</td></tr>';const rows=await loadDirectDatabaseHistory('maintenance');$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';__filterHistoryRows('maintenance');}catch(err){$('maintenanceHistoryBody').innerHTML='<tr><td colspan="10" class="empty">Gagal memuat history Maintenance.</td></tr>';toast('History Maintenance Semua Store: '+err.message)}}
+function exportMaintenanceWhatsApp(rowIndex){
+  const rows=window.__maintenanceHistoryRows||[];
+  const x=rows[rowIndex];
+  if(!x){toast('Data Maintenance tidak ditemukan. Silakan refresh history.');return;}
+  const store=String(x.store||x.storeName||'').trim();
+  const damage=String(x.jenisKerusakan||x.keterangan||'-').trim();
+  const date=formatDateWIB(x.tanggalInput||'');
+  const detail=String(x.keterangan||'-').trim();
+  const message=[
+    'Selamat Siang Team Maintenance dan PRJ,',
+    'Berikut SC ('+store+') dibantu follow up nya :',
+    '',
+    '1. Store : '+store,
+    'Kerusakan : '+damage,
+    'No SC : '+String(x.noSC||'-').trim(),
+    'Tgl input SC : '+date,
+    'Keterangan : '+detail,
+    '',
+    'Terima kasih'
+  ].join('\n');
+  const url='https://wa.me/?text='+encodeURIComponent(message);
+  window.open(url,'_blank','noopener,noreferrer');
+}
+
+async function loadMaintenanceHistory(){if(!state.user)return;try{$('maintenanceHistoryBody').innerHTML='<tr><td colspan="11" class="empty">Memuat history Maintenance...</td></tr>';const rows=await loadDirectDatabaseHistory('maintenance');window.__maintenanceHistoryRows=rows;$('maintenanceHistoryBody').innerHTML=rows.length?rows.map((x,i)=>`<tr><td>${escapeHtml(formatDateWIB(x.tanggalInput||'-'))}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td><td><button class="btn btn-peach" onclick="exportMaintenanceWhatsApp(${i})">💬 Export WA</button></td></tr>`).join(''):'<tr><td colspan="11" class="empty">Belum ada history Maintenance.</td></tr>';__filterHistoryRows('maintenance');}catch(err){$('maintenanceHistoryBody').innerHTML='<tr><td colspan="11" class="empty">Gagal memuat history Maintenance.</td></tr>';toast('History Maintenance Semua Store: '+err.message)}}
 async function loadKPIHistory(){if(!state.user)return;try{$('kpiHistoryBody').innerHTML='<tr><td colspan="8" class="empty">Memuat history KPI...</td></tr>';const rows=await loadDirectDatabaseHistory('kpi');$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">Belum ada history KPI.</td></tr>';__filterHistoryRows('kpi');}catch(err){$('kpiHistoryBody').innerHTML='<tr><td colspan="8" class="empty">Gagal memuat history KPI.</td></tr>';toast('History KPI Semua Store: '+err.message)}}
 
 async function loadSoldOutSummary(){
