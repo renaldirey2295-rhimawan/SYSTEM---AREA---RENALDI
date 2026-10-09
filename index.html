@@ -373,6 +373,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 #nav button:nth-child(5){background:#eee5ff!important;color:#6745a0!important;border-color:#d9cafa!important}
 #nav button:nth-child(6){background:#dff5f6!important;color:#216d75!important;border-color:#bfe7e9!important}
 #nav button:nth-child(7){background:#ffe5f0!important;color:#91466b!important;border-color:#f5c9dd!important}
+#nav button:nth-child(8){background:#ffe8df!important;color:#a64e2c!important;border-color:#f5c9b7!important}
 #nav button:hover,.module-menu-card:hover{filter:saturate(1.12);transform:translateY(-2px);box-shadow:0 8px 18px rgba(40,60,90,.16)}
 #nav button.active{outline:2px solid rgba(72,103,145,.25);outline-offset:1px;filter:saturate(1.15);box-shadow:0 6px 15px rgba(40,60,90,.16)}
 /* Buttons across all modules */
@@ -434,6 +435,7 @@ button.btn:not(:disabled):hover{filter:saturate(1.12);box-shadow:0 7px 15px rgba
       <button data-page="kpi" onclick="showPage('kpi')">📊 KPI Store</button>
       <button data-page="walkthrough" onclick="showPage('walkthrough')">📝 Walkthrough</button>
       <button data-page="smallware" onclick="showPage('smallware')">🍴 Smallware</button>
+      <button data-page="soldout" onclick="showPage('soldout')">🚫 Rekap Sold Out</button>
     </nav>
 
     <div class="store-only-note">
@@ -935,6 +937,31 @@ button.btn:not(:disabled):hover{filter:saturate(1.12);box-shadow:0 7px 15px rgba
       </div>
 
       <div id="walkthroughDetail" class="card hidden" style="margin-top:16px"></div>
+    </section>
+
+    <section id="page-soldout" class="page-section hidden">
+      <div class="hero">
+        <h2>🚫 Rekap Sold Out</h2>
+        <p>Rekap item Sold Out berdasarkan store dan periode dari HISTORY BASE.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="form-grid">
+          <div class="field"><label>FILTER STORE</label><select id="soStore"><option value="ALL">SEMUA STORE</option><option value="CITYWALK">CITYWALK</option><option value="CITRA TOWER">CITRA TOWER</option><option value="MENTENG">MENTENG</option></select></div>
+          <div class="field"><label>DARI TANGGAL</label><input id="soFrom" type="date"></div>
+          <div class="field"><label>SAMPAI TANGGAL</label><input id="soTo" type="date"></div>
+          <div class="field" style="display:flex;align-items:end"><button class="btn btn-primary" onclick="loadSoldOutSummary()">🔎 Tampilkan Rekap</button></div>
+        </div>
+      </div>
+      <div class="stats" style="margin-bottom:16px">
+        <div class="stat"><div class="icon">📦</div><div class="label">TOTAL ITEM</div><div id="soTotalItems" class="value">0</div></div>
+        <div class="stat"><div class="icon">🏬</div><div class="label">STORE-ITEM</div><div id="soStoreItems" class="value">0</div></div>
+        <div class="stat"><div class="icon">📅</div><div class="label">TOTAL HARI SO</div><div id="soDays" class="value">0</div></div>
+        <div class="stat"><div class="icon">🚨</div><div class="label">CRITICAL</div><div id="soCritical" class="value">0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>📋 Detail Rekap Sold Out</h3><div class="small">Sumber: HISTORY BASE · Data hanya dibaca, tidak mengubah sumber.</div></div><button class="btn btn-light" onclick="loadSoldOutSummary()">↻ Refresh</button></div>
+        <div class="table-wrap"><table><thead><tr><th>STORE</th><th>KODE MATERIAL</th><th>NAMA BARANG</th><th>TOTAL HARI SO</th><th>SO TERAKHIR</th><th>PERIODE SO</th><th>STREAK TERLAMA</th><th>PRIORITAS</th></tr></thead><tbody id="soldOutBody"><tr><td colspan="8" class="empty">Klik Tampilkan Rekap untuk memuat data.</td></tr></tbody></table></div>
+      </div>
     </section>
 
     <section id="page-smallware" class="page-section hidden">
@@ -1758,6 +1785,36 @@ async function loadSalesHistory(){if(!state.user)return;try{$('salesHistoryBody'
 async function loadWasteHistory(){if(!state.user)return;try{$('wasteHistoryBody').innerHTML='<tr><td colspan="6" class="empty">Memuat history Waste...</td></tr>';const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=Array.isArray(r.allRows)?r.allRows:(Array.isArray(r.data)?r.data:[]);$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';__filterHistoryRows('waste');}catch(err){$('wasteHistoryBody').innerHTML='<tr><td colspan="6" class="empty">Gagal memuat history Waste.</td></tr>';toast('History Waste: '+err.message)}}
 async function loadMaintenanceHistory(){if(!state.user)return;try{$('maintenanceHistoryBody').innerHTML='<tr><td colspan="10" class="empty">Memuat history Maintenance...</td></tr>';const rows=await loadDirectDatabaseHistory('maintenance');$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';__filterHistoryRows('maintenance');}catch(err){$('maintenanceHistoryBody').innerHTML='<tr><td colspan="10" class="empty">Gagal memuat history Maintenance.</td></tr>';toast('History Maintenance Semua Store: '+err.message)}}
 async function loadKPIHistory(){if(!state.user)return;try{$('kpiHistoryBody').innerHTML='<tr><td colspan="8" class="empty">Memuat history KPI...</td></tr>';const rows=await loadDirectDatabaseHistory('kpi');$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">Belum ada history KPI.</td></tr>';__filterHistoryRows('kpi');}catch(err){$('kpiHistoryBody').innerHTML='<tr><td colspan="8" class="empty">Gagal memuat history KPI.</td></tr>';toast('History KPI Semua Store: '+err.message)}}
+
+async function loadSoldOutSummary(){
+  const body=document.getElementById('soldOutBody');
+  if(!body)return;
+  body.innerHTML='<tr><td colspan="8" class="empty">Memuat rekap Sold Out...</td></tr>';
+  try{
+    const r=await apiGet('soldoutSummary',{
+      store:document.getElementById('soStore')?.value||'ALL',
+      from:document.getElementById('soFrom')?.value||'',
+      to:document.getElementById('soTo')?.value||'',
+      limit:5000
+    });
+    const summary=r.summary||{};
+    document.getElementById('soTotalItems').textContent=Number(summary.totalItems||0).toLocaleString('id-ID');
+    document.getElementById('soStoreItems').textContent=Number(summary.totalStoreItems||0).toLocaleString('id-ID');
+    document.getElementById('soDays').textContent=Number(summary.totalSoldOutDays||0).toLocaleString('id-ID');
+    document.getElementById('soCritical').textContent=Number(summary.critical||0).toLocaleString('id-ID');
+    const rows=Array.isArray(r.data)?r.data:[];
+    if(!rows.length){body.innerHTML='<tr><td colspan="8" class="empty">Tidak ada data Sold Out untuk filter ini.</td></tr>';return;}
+    body.innerHTML=rows.map(x=>{
+      const priority=String(x.priority||'NORMAL').toUpperCase();
+      const colors={CRITICAL:'badge-danger',HIGH:'badge-warning',MONITOR:'badge-progress',NORMAL:'badge-success'};
+      const badge=colors[priority]||'badge-progress';
+      return `<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(x.kodeMaterial||x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${Number(x.totalHariSO||0).toLocaleString('id-ID')}</td><td>${escapeHtml(x.soTerakhir||'-')}</td><td>${escapeHtml(x.periodeSO||'-')}</td><td>${Number(x.longestStreak||0).toLocaleString('id-ID')}</td><td><span class="badge ${badge}">${escapeHtml(priority)}</span></td></tr>`;
+    }).join('');
+  }catch(err){
+    body.innerHTML=`<tr><td colspan="8" class="empty">Gagal memuat Sold Out: ${escapeHtml(err.message||String(err))}</td></tr>`;
+    toast('Rekap Sold Out: '+(err.message||err));
+  }
+}
 
 /* SALES */
 [
@@ -2992,6 +3049,7 @@ const __moduleSpecs = {
   walkthrough:{title:'📝 Walkthrough',subtitle:'Buka temuan dan tindak lanjut walkthrough.',items:[
     {key:'history',icon:'📋',title:'History Temuan',desc:'Cari dan lihat temuan berdasarkan store.',tone:'cyan'},
     {key:'followup',icon:'✅',title:'Detail / Follow Up Temuan',desc:'Pilih temuan untuk melihat detail dan tindak lanjut.',tone:'green'}]},
+  soldout:{title:'🚫 Rekap Sold Out',subtitle:'Lihat rekap item Sold Out berdasarkan store dan periode.',items:[{key:'history',icon:'📋',title:'Rekap Sold Out',desc:'Ringkasan dan prioritas item Sold Out.',tone:'orange'}]},
   smallware:{title:'🍴 Smallware',subtitle:'Pilih request baru, history request, atau frequency.',items:[
     {key:'request',icon:'➕',title:'Request Baru',desc:'Buat permintaan Smallware.',tone:'green'},
     {key:'history',icon:'📋',title:'History Request',desc:'Lihat status seluruh request.',tone:'blue'},
@@ -3141,6 +3199,8 @@ async function openModuleView(module,view){
       }else if(module==='walkthrough'){
         if(view==='history')await initWalkthrough();
         if(view==='followup')await initWalkthrough();
+      }else if(module==='soldout'){
+        if(view==='history')await loadSoldOutSummary();
       }else if(module==='smallware'){
         if(typeof initSmallware==='function')await initSmallware();
         if(typeof showSmallwareTab==='function')showSmallwareTab(view);
