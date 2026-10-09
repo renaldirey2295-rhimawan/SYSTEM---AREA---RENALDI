@@ -3230,5 +3230,90 @@ function showPage(page){
 }
 
 </script>
+
+
+<!-- V18.5 VISUAL-ONLY THEME OVERRIDE: preserves existing JavaScript and workflows -->
+<style id="v185-soft-color-theme">
+:root{
+  --bg:#edf3f9;
+  --card:#f7f9fc;
+  --line:#d5e0ec;
+  --text:#26364b;
+  --muted:#60738b;
+  --shadow:0 8px 24px rgba(47,70,100,.09);
+}
+body{background-color:#edf3f9;color:#26364b}
+/* Soft, bright surfaces instead of stark white */
+.card,.panel,.section-card,.content-card,.stat-card,.kpi-card,.history-card,
+header,.topbar,.page-header,.hero,.module-header,.dashboard-header,
+.modal-content,.dialog,.form-card,.walk-card,.module-menu-card,
+#page-dashboard .card,#page-dashboard .panel,
+.page-section .card,.page-section .panel{
+  background-color:#f5f8fc;
+  border-color:#d5e0ec;
+  box-shadow:0 6px 18px rgba(55,78,108,.07);
+}
+/* Soft color variation for common dashboard/form panels */
+#page-dashboard .card:nth-of-type(4n+1),
+.page-section .card:nth-of-type(4n+1){background-color:#f0f6ff}
+#page-dashboard .card:nth-of-type(4n+2),
+.page-section .card:nth-of-type(4n+2){background-color:#eff9f4}
+#page-dashboard .card:nth-of-type(4n+3),
+.page-section .card:nth-of-type(4n+3){background-color:#fff7ed}
+#page-dashboard .card:nth-of-type(4n),
+.page-section .card:nth-of-type(4n){background-color:#f7f2ff}
+/* Readable form controls with a gentle tint */
+input:not([type="file"]),select,textarea{
+  background-color:#f8faff;
+  color:#2c3b50;
+  border-color:#d3dfed;
+}
+input:not([type="file"]):focus,select:focus,textarea:focus{
+  background-color:#fff;
+  border-color:#8fb5e8;
+  box-shadow:0 0 0 3px rgba(116,164,224,.16);
+}
+/* Table surfaces: subtle blue tint, alternating rows, clearer typography */
+table{border-color:#d4e0ed}
+thead th,table thead th{
+  background:#e4edf8!important;
+  color:#304a69!important;
+  font-weight:700!important;
+  border-color:#d1deec!important;
+}
+tbody td,table tbody td{
+  background-color:#f7f9fd;
+  color:#33445b;
+  font-weight:500;
+  border-color:#dce5ef;
+}
+tbody tr:nth-child(even) td,table tbody tr:nth-child(even) td{
+  background-color:#edf4fb!important;
+}
+tbody tr:hover td,table tbody tr:hover td{
+  background-color:#e1efff!important;
+}
+/* Existing history row accents remain gentle, not stark white */
+#salesHistoryBody tr:nth-child(odd) td{background:#f7f9fd!important}
+#salesHistoryBody tr:nth-child(even) td{background:#edf4fb!important}
+#salesHistoryBody tr:hover td{background:#e1efff!important}
+/* Buttons retain their existing module colors; neutral buttons become soft blue */
+button,.btn{
+  transition:filter .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.btn:not(.btn-peach):not(.btn-orange):not(.btn-danger):not(.btn-success),
+button.btn-light{
+  background-color:#eaf1fa;
+  color:#304b6b;
+  border-color:#d0deed;
+}
+button:hover,.btn:hover{filter:brightness(.98);box-shadow:0 4px 12px rgba(47,70,100,.10)}
+/* Soft notice and empty-state backgrounds */
+.empty,.empty-state,.notice,.info-box{background-color:#eef4fb;color:#52677f;border-color:#d7e3f0}
+/* Keep text contrast clear on light backgrounds */
+.card h1,.card h2,.card h3,.panel h1,.panel h2,.panel h3,
+.page-section h1,.page-section h2,.page-section h3{color:#293a50}
+</style>
+
 </body>
 </html>
