@@ -1859,7 +1859,7 @@ async function saveMaintenance(){
       noSC,
       tanggalInput:$('mtInputDate').value,
       tanggalKejadian:$('mtIncidentDate').value,
-      store:storeApiOfUser(),
+      store:targetStore, // Gunakan store yang dipilih pada form Maintenance, bukan store akun (bisa ALL).
       kategori:$('mtCategory').value,
       itemAsset:$('mtAsset').value.trim(),
       jenisKerusakan:$('mtDamage').value.trim(),
