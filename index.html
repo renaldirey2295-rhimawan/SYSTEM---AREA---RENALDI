@@ -336,7 +336,13 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 .module-backbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 14px}
 .module-backbar .btn{background:rgba(245,248,252,.94);border:1px solid #dfe7f1;color:#506176}
 .module-page-title{font-size:13px;font-weight:800;letter-spacing:.04em;color:#64748b;text-transform:uppercase}
-#loading{background:rgba(238,243,250,.68);backdrop-filter:blur(8px);transition:opacity .15s ease}
+#loading{background:rgba(238,243,250,.68);backdrop-filter:blur(8px);transition:opacity .12s ease;will-change:opacity}
+#loading.hidden{display:none!important}
+.module-content-panel{min-width:0;animation:moduleFadeIn .14s ease-out}
+.module-history-filter select{min-height:42px}
+#swPanelHistory .filters>*{min-width:180px;flex:1}
+@media(max-width:600px){#swPanelHistory .filters{display:grid!important;grid-template-columns:1fr;gap:9px!important}#swPanelHistory .filters>*{width:100%;min-width:0}}
+.module-history-filter select:focus{outline:2px solid rgba(96,143,200,.2);outline-offset:1px}
 #loading .spinner{display:flex;align-items:center;gap:12px;padding:18px 22px;border:1px solid rgba(255,255,255,.9);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 15px 45px rgba(36,55,82,.18)}
 .loading-ring{width:22px;height:22px;border:3px solid #dce7f5;border-top-color:#608fc8;border-radius:50%;animation:moduleSpin .7s linear infinite;flex:0 0 22px}
 @keyframes moduleSpin{to{transform:rotate(360deg)}}
@@ -1002,6 +1008,12 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
         </div>
 
         <div class="filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <select id="swHistoryStoreFilter" aria-label="Filter Store Smallware" onchange="renderSmallwareHistory()" style="min-width:190px;flex:1">
+            <option value="ALL">SEMUA STORE</option>
+            <option value="CITYWALK">CITYWALK</option>
+            <option value="CITRA TOWER">CITRA TOWER</option>
+            <option value="MENTENG">MENTENG</option>
+          </select>
           <input id="swSearch" placeholder="Cari ID / Store / Smallware / Jenis" oninput="renderSmallwareHistory()">
           <select id="swStatusFilter" onchange="renderSmallwareHistory()">
             <option value="">Semua Status</option>
@@ -1672,15 +1684,18 @@ function renderWasteLatest(rows){
 function historyHeaderKey(header){
   const h=String(header||'').trim().toUpperCase();
   const map={
-    'ID':'id','TIMESTAMP':'timestamp','TANGGAL':'tanggal','STORE':'store',
-    'DINE IN':'dineIn','TC DINE IN':'tcDineIn','DELIVERY':'delivery','TC DELIVERY':'tcDelivery','TAKE AWAY':'takeAway','TC TAKE AWAY':'tcTakeAway','CONNECT / BO':'connectBO','TC CONNECT / BO':'tcConnectBO',
-    'TIPS':'tips','TOTAL SALES':'totalSales','KETERANGAN':'keterangan','INPUT BY':'inputBy',
-    'NO SC':'noSC','TANGGAL INPUT':'tanggalInput','TANGGAL KEJADIAN':'tanggalKejadian',
-    'KATEGORI':'kategori','ITEM / ASSET':'itemAsset','JENIS KERUSAKAN':'jenisKerusakan',
+    'ID':'id','TIMESTAMP':'timestamp','TANGGAL':'tanggal','TANGGAL SALES':'tanggal','STORE':'store','STORE NAME':'store','NAMA STORE':'store',
+    'DINE IN':'dineIn','DINE IN SALES':'dineIn','SALES DINE IN':'dineIn','TC DINE IN':'tcDineIn','DINE IN TC':'tcDineIn',
+    'DELIVERY':'delivery','DELIVERY SALES':'delivery','SALES DELIVERY':'delivery','TC DELIVERY':'tcDelivery','DELIVERY TC':'tcDelivery',
+    'TAKE AWAY':'takeAway','TAKE AWAY SALES':'takeAway','TAKEAWAY SALES':'takeAway','SALES TAKE AWAY':'takeAway','TC TAKE AWAY':'tcTakeAway','TAKE AWAY TC':'tcTakeAway','TAKEAWAY TC':'tcTakeAway',
+    'CONNECT / BO':'connectBO','CONNECT / BO SALES':'connectBO','CONNECT BO SALES':'connectBO','SALES CONNECT / BO':'connectBO','TC CONNECT / BO':'tcConnectBO','CONNECT / BO TC':'tcConnectBO',
+    'TIPS':'tips','TOTAL SALES':'totalSales','TOTAL TC':'totalTc','KETERANGAN':'keterangan','INPUT BY':'inputBy',
+    'NO SC':'noSC','NOMOR SC':'noSC','TANGGAL INPUT':'tanggalInput','TGL INPUT':'tanggalInput','TANGGAL KEJADIAN':'tanggalKejadian','TGL KEJADIAN':'tanggalKejadian',
+    'KATEGORI':'kategori','ITEM / ASSET':'itemAsset','ASSET':'itemAsset','JENIS KERUSAKAN':'jenisKerusakan','KERUSAKAN':'jenisKerusakan',
     'PRIORITAS':'prioritas','FOTO BEFORE':'fotoBefore','STATUS':'status','TEKNISI / VENDOR':'teknisiVendor',
     'TANGGAL PROGRESS':'tanggalProgress','FOTO PROGRESS':'fotoProgress','TINDAKAN':'tindakan',
     'TANGGAL SELESAI':'tanggalSelesai','FOTO AFTER':'fotoAfter','KETERANGAN SELESAI':'keteranganSelesai',
-    'BULAN':'bulan','TAHUN':'tahun','TANGGAL UPLOAD':'tanggalUpload','FILE NAME':'fileName',
+    'BULAN':'bulan','TAHUN':'tahun','TANGGAL UPLOAD':'tanggalUpload','TGL UPLOAD':'tanggalUpload','FILE NAME':'fileName','NAMA FILE':'fileName',
     'DRIVE URL':'driveUrl','DRIVE FILE ID':'driveFileId','UPLOAD BY':'uploadBy'
   };
   if(map[h]) return map[h];
@@ -1689,19 +1704,25 @@ function historyHeaderKey(header){
 
 async function loadDirectDatabaseHistory(moduleName){
   const r=await apiGet('data',{module:moduleName});
-  const headers=r.headers||[];
-  const rawRows=r.data||[];
+  const headers=Array.isArray(r.headers)?r.headers:[];
+  const rawRows=Array.isArray(r.data)?r.data:(Array.isArray(r.rows)?r.rows:[]);
+  if(!headers.length && rawRows.length && !Array.isArray(rawRows[0])){
+    return rawRows.slice().reverse().slice(0,5000);
+  }
   return rawRows.map(row=>{
     const obj={};
-    headers.forEach((h,i)=>obj[historyHeaderKey(h)]=row[i]);
+    headers.forEach((h,i)=>obj[historyHeaderKey(h)]=Array.isArray(row)?row[i]:row[h]);
+    // Some databases use slightly different column labels; normalize store/date fields.
+    if(!obj.store) obj.store=obj.storeName||obj.namaStore||obj.namaToko||'';
+    if(!obj.tanggal) obj.tanggal=obj.tanggalSales||obj.tanggalInput||obj.tgl||'';
     return obj;
   }).reverse().slice(0,5000);
 }
 
-async function loadSalesHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(formatDateWIB(x.tanggal))}</td><td>${formatRupiah(x.dineIn)}</td><td>${Number(x.tcDineIn||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.delivery)}</td><td>${Number(x.tcDelivery||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.takeAway)}</td><td>${Number(x.tcTakeAway||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.connectBO)}</td><td>${Number(x.tcConnectBO||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td><b>${Number(x.totalTc||0).toLocaleString('id-ID')}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="15" class="empty">Belum ada history Sales.</td></tr>';}catch(err){toast('History Sales: '+err.message)}}
-async function loadWasteHistory(){if(!state.user)return;try{const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=r.allRows||[];$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';}catch(err){toast('History Waste: '+err.message)}}
-async function loadMaintenanceHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('maintenance');$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';}catch(err){toast('History Maintenance Semua Store: '+err.message)}}
-async function loadKPIHistory(){if(!state.user)return;try{const rows=await loadDirectDatabaseHistory('kpi');$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">Belum ada history KPI.</td></tr>';}catch(err){toast('History KPI Semua Store: '+err.message)}}
+async function loadSalesHistory(){if(!state.user)return;try{$('salesHistoryBody').innerHTML='<tr><td colspan="15" class="empty">Memuat history Sales...</td></tr>';const rows=await loadDirectDatabaseHistory('sales');$('salesHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.store||'-')}</b></td><td>${escapeHtml(formatDateWIB(x.tanggal))}</td><td>${formatRupiah(x.dineIn)}</td><td>${Number(x.tcDineIn||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.delivery)}</td><td>${Number(x.tcDelivery||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.takeAway)}</td><td>${Number(x.tcTakeAway||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.connectBO)}</td><td>${Number(x.tcConnectBO||0).toLocaleString('id-ID')}</td><td>${formatRupiah(x.tips)}</td><td><b>${formatRupiah(x.totalSales)}</b></td><td><b>${Number(x.totalTc||0).toLocaleString('id-ID')}</b></td><td>${escapeHtml(x.keterangan||'-')}</td><td>${escapeHtml(x.inputBy||'-')}</td></tr>`).join(''):'<tr><td colspan="15" class="empty">Belum ada history Sales.</td></tr>';__filterHistoryRows('sales');}catch(err){$('salesHistoryBody').innerHTML='<tr><td colspan="15" class="empty">Gagal memuat history Sales.</td></tr>';toast('History Sales: '+err.message)}}
+async function loadWasteHistory(){if(!state.user)return;try{$('wasteHistoryBody').innerHTML='<tr><td colspan="6" class="empty">Memuat history Waste...</td></tr>';const r=await apiGet('wasteData',{store:'ALL',role:'PUBLIC',userStore:'',limit:5000});const rows=Array.isArray(r.allRows)?r.allRows:(Array.isArray(r.data)?r.data:[]);$('wasteHistoryBody').innerHTML=rows.length?rows.slice().sort((a,b)=>String(b.periodeAkhir||'').localeCompare(String(a.periodeAkhir||''))).map(x=>`<tr><td>${escapeHtml(x.periodeMulai||'-')} s/d ${escapeHtml(x.periodeAkhir||'-')}</td><td>${escapeHtml(x.kode||'-')}</td><td>${escapeHtml(x.namaBarang||'-')}</td><td>${escapeHtml(x.satuan||'-')}</td><td><b>${Number(x.totalWaste||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</b></td><td>${escapeHtml(x.storeName||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Belum ada history Waste.</td></tr>';__filterHistoryRows('waste');}catch(err){$('wasteHistoryBody').innerHTML='<tr><td colspan="6" class="empty">Gagal memuat history Waste.</td></tr>';toast('History Waste: '+err.message)}}
+async function loadMaintenanceHistory(){if(!state.user)return;try{$('maintenanceHistoryBody').innerHTML='<tr><td colspan="10" class="empty">Memuat history Maintenance...</td></tr>';const rows=await loadDirectDatabaseHistory('maintenance');$('maintenanceHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.tanggalInput||'-')}</td><td><b>${escapeHtml(x.noSC||'-')}</b></td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.kategori||'-')}</td><td>${escapeHtml(x.itemAsset||'-')}</td><td>${escapeHtml(x.jenisKerusakan||'-')}</td><td>${escapeHtml(x.prioritas||'-')}</td><td>${statusBadge(x.status)}</td><td>${escapeHtml(x.teknisiVendor||'-')}</td><td>${escapeHtml(x.tanggalSelesai||'-')}</td></tr>`).join(''):'<tr><td colspan="10" class="empty">Belum ada history Maintenance.</td></tr>';__filterHistoryRows('maintenance');}catch(err){$('maintenanceHistoryBody').innerHTML='<tr><td colspan="10" class="empty">Gagal memuat history Maintenance.</td></tr>';toast('History Maintenance Semua Store: '+err.message)}}
+async function loadKPIHistory(){if(!state.user)return;try{$('kpiHistoryBody').innerHTML='<tr><td colspan="8" class="empty">Memuat history KPI...</td></tr>';const rows=await loadDirectDatabaseHistory('kpi');$('kpiHistoryBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${escapeHtml(x.timestamp||'-')}</td><td>${escapeHtml(x.store||'-')}</td><td>${escapeHtml(x.bulan||'-')}</td><td>${escapeHtml(x.tahun||'-')}</td><td>${escapeHtml(x.tanggalUpload||'-')}</td><td>${escapeHtml(x.keterangan||'-')}</td><td>${x.driveUrl?`<a class="btn btn-light" target="_blank" href="${escapeAttr(x.driveUrl)}">Lihat KPI</a>`:escapeHtml(x.fileName||'-')}</td><td>${escapeHtml(x.uploadBy||'-')}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">Belum ada history KPI.</td></tr>';__filterHistoryRows('kpi');}catch(err){$('kpiHistoryBody').innerHTML='<tr><td colspan="8" class="empty">Gagal memuat history KPI.</td></tr>';toast('History KPI Semua Store: '+err.message)}}
 
 /* SALES */
 [
@@ -2474,15 +2495,18 @@ function renderSmallwareHistory(){
 
   const q = String($('swSearch')?.value||'').trim().toLowerCase();
   const status = String($('swStatusFilter')?.value||'').toUpperCase();
+  const selectedStore = canonicalStore($('swHistoryStoreFilter')?.value||'ALL');
 
   const rows = smallwareRows.filter(x=>{
     const text = [
       x.idRequest, x.store, x.namaSmallware,
       x.jenisRequest, x.keterangan, x.status
     ].join(' ').toLowerCase();
+    const rowStore = canonicalStore(x.store||x.storeName||'');
 
     return (!q || text.includes(q))
-      && (!status || String(x.status||'').toUpperCase()===status);
+      && (!status || String(x.status||'').toUpperCase()===status)
+      && (!selectedStore || selectedStore==='ALL' || rowStore===selectedStore);
   });
 
   if(!rows.length){
@@ -3022,9 +3046,17 @@ function __addHistoryFilter(module,card){
   select.addEventListener('change',()=>__filterHistoryRows(module));box.append(label,select);const tableWrap=card.querySelector('.table-wrap');if(tableWrap)card.insertBefore(box,tableWrap);else card.appendChild(box);
 }
 function __filterHistoryRows(module){
-  const select=__el(module+'HistoryStoreFilter');if(!select)return;
-  const wanted=select.value;const body=__el(({sales:'salesHistoryBody',waste:'wasteHistoryBody',maintenance:'maintenanceHistoryBody',kpi:'kpiHistoryBody'})[module]);if(!body)return;
-  Array.from(body.querySelectorAll('tr')).forEach(tr=>{const first=(tr.cells[0]?.textContent||'').trim().toUpperCase();const storeIndex=module==='sales'?0:module==='waste'?5:module==='maintenance'?2:1;const store=(tr.cells[storeIndex]?.textContent||'').trim().toUpperCase();tr.hidden=!!(wanted!=='ALL'&&store!==wanted&& !/BELUM ADA HISTORY/.test(first));});
+  const select=__el(module+'HistoryStoreFilter');
+  const body=__el(({sales:'salesHistoryBody',waste:'wasteHistoryBody',maintenance:'maintenanceHistoryBody',kpi:'kpiHistoryBody'})[module]);
+  if(!body)return;
+  const wanted=select?canonicalStore(select.value):'ALL';
+  const storeIndex=module==='sales'?0:module==='waste'?5:module==='maintenance'?2:1;
+  Array.from(body.querySelectorAll('tr')).forEach(tr=>{
+    const first=(tr.cells[0]?.textContent||'').trim().toUpperCase();
+    const store=canonicalStore((tr.cells[storeIndex]?.textContent||'').trim());
+    const isEmpty=/BELUM ADA HISTORY|MEMUAT HISTORY|GAGAL MEMUAT/.test(first);
+    tr.hidden=!!(wanted&&wanted!=='ALL'&&!isEmpty&&store!==wanted);
+  });
 }
 function __setModuleView(module,view){
   const section=__el('page-'+module);if(!section)return;
