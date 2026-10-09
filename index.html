@@ -277,6 +277,23 @@ body{
   #nav button{padding:10px 12px}
 }
 
+
+/* MODULE SUBMENU UI V17 */
+.module-menu{margin-bottom:18px}
+.module-hero{position:relative}
+.module-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.module-option{display:flex;align-items:center;gap:14px;text-align:left;min-height:92px;padding:18px;border:1px solid rgba(255,255,255,.85);border-radius:18px;box-shadow:0 8px 22px rgba(35,54,80,.10);font-weight:800;color:#26374d;transition:transform .18s,box-shadow .18s}
+.module-option:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(35,54,80,.16)}
+.module-option .option-icon{font-size:26px;width:44px;height:44px;display:grid;place-items:center;background:rgba(255,255,255,.7);border-radius:14px;flex-shrink:0}
+.module-option .option-copy small{display:block;font-weight:500;color:#586b82;margin-top:5px;line-height:1.4}
+.module-option.c1{background:#dceafb}.module-option.c2{background:#dff4e6}.module-option.c3{background:#fff0d6}.module-option.c4{background:#fbe4da}.module-option.c5{background:#eadff8}.module-option.c6{background:#d8f1f3}.module-option.c7{background:#f8e0ed}
+.module-backline{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.module-subbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.module-subbar .btn{box-shadow:0 3px 10px rgba(35,54,80,.08)}
+.module-subbar .selected{outline:2px solid #7faedb;outline-offset:1px}
+body{background-attachment:fixed}
+@media(max-width:750px){.module-options{grid-template-columns:repeat(2,minmax(0,1fr))}.module-option{padding:14px;min-height:82px}}
+@media(max-width:480px){.module-options{grid-template-columns:1fr}.module-option{min-height:72px}}
 </style>
 
 <style>
@@ -362,13 +379,22 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
   <main class="page">
     <nav class="nav" id="nav">
       <button data-page="dashboard" onclick="showPage('dashboard')">🏠 Dashboard</button>
-      <button data-page="sales" onclick="showPage('sales')">💰 Sales</button>
-      <button data-page="waste" onclick="showPage('waste')">♻️ Waste</button>
-      <button data-page="maintenance" onclick="showPage('maintenance')">🔧 Maintenance</button>
-      <button data-page="kpi" onclick="showPage('kpi')">📊 KPI Store</button>
-      <button data-page="walkthrough" onclick="showPage('walkthrough')">📝 Walkthrough</button>
-      <button data-page="smallware" onclick="showPage('smallware')">🍴 Smallware</button>
+      <button data-page="sales" onclick="showModuleMenu('sales')">💰 Sales</button>
+      <button data-page="waste" onclick="showModuleMenu('waste')">♻️ Waste</button>
+      <button data-page="maintenance" onclick="showModuleMenu('maintenance')">🔧 Maintenance</button>
+      <button data-page="kpi" onclick="showModuleMenu('kpi')">📊 KPI Store</button>
+      <button data-page="walkthrough" onclick="showModuleMenu('walkthrough')">📝 Walkthrough</button>
+      <button data-page="smallware" onclick="showModuleMenu('smallware')">🍴 Smallware</button>
     </nav>
+
+    <section id="moduleMenu" class="module-menu hidden">
+      <div class="hero module-hero">
+        <button class="btn btn-light" onclick="backToMainMenu()">← Kembali ke Menu Utama</button>
+        <h2 id="moduleMenuTitle" style="margin-top:14px">Menu</h2>
+        <p id="moduleMenuSub">Pilih fungsi yang ingin dibuka.</p>
+      </div>
+      <div id="moduleMenuOptions" class="module-options"></div>
+    </section>
 
     <div class="store-only-note">
       🌐 <b>STORE PORTAL</b> — Tanpa username & password.
@@ -577,7 +603,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
       </div>
     </section>
 
-      <div class="card" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
+      <div class="card hidden" id="salesHistoryCard" style="margin-top:16px"><div class="card-head"><div><h3>📋 History Sales</h3><div class="small">Seluruh history input Sales langsung dari SALES DATABASE. Data tetap terpisah per Store.</div></div><button class="btn btn-light" onclick="loadSalesHistory()">↻ Refresh</button></div><div class="table-wrap"><table style="min-width:1400px"><thead><tr><th>STORE</th><th>TANGGAL</th><th>DINE IN SALES</th><th>DINE IN TC</th><th>DELIVERY SALES</th><th>DELIVERY TC</th><th>TAKE AWAY SALES</th><th>TAKE AWAY TC</th><th>CONNECT / BO SALES</th><th>CONNECT / BO TC</th><th>TIPS</th><th>TOTAL SALES</th><th>TOTAL TC</th><th>KETERANGAN</th><th>INPUT BY</th></tr></thead><tbody id="salesHistoryBody"></tbody></table></div></div>
     </section>
 
     <section id="page-waste" class="page-section hidden">
@@ -1241,7 +1267,87 @@ function initPublicPortal(){
 }
 
 
+const MODULE_CONFIG = {
+  sales:{title:'💰 Sales',sub:'Pilih input sales atau lihat history berdasarkan store.',options:[['input','➕','Input Sales','Input laporan sales harian.','c2'],['history','📋','History Sales','Riwayat transaksi dan filter store.','c1']]},
+  waste:{title:'♻️ Waste',sub:'Pilih dashboard waste atau history waste.',options:[['dashboard','📊','Dashboard Waste','Ringkasan dan item waste.','c3'],['history','📋','History Waste','Riwayat waste seluruh store.','c1']]},
+  maintenance:{title:'🔧 Maintenance',sub:'Kelola ticket dan lihat riwayat perbaikan.',options:[['input','➕','Input Ticket','Buat ticket maintenance baru.','c4'],['history','📋','History Maintenance','Riwayat ticket semua store.','c1'],['search','🔎','Cari Ticket','Cari ticket berdasarkan nomor SC.','c5']]},
+  kpi:{title:'📊 KPI Store',sub:'Upload KPI atau lihat riwayat upload.',options:[['input','📤','Input KPI','Upload foto dashboard KPI.','c5'],['history','📋','History KPI','Riwayat KPI semua store.','c1']]},
+  walkthrough:{title:'📝 Walkthrough',sub:'Pilih daftar temuan atau detail dan tindak lanjut.',options:[['history','📋','History Temuan','Daftar temuan berdasarkan store.','c6'],['detail','🔎','Detail Temuan','Buka daftar temuan untuk memilih detail dan follow up.','c1']]},
+  smallware:{title:'🍴 Smallware',sub:'Kelola request, history, dan frequency Smallware.',options:[['request','➕','Request Baru','Buat permintaan Smallware.','c7'],['history','📋','History Request','Lihat status semua request.','c1'],['frequency','📈','Frequency','Lihat frekuensi kebutuhan Smallware.','c5']]}
+};
+let activeModule = '';
+function showModuleMenu(module){
+  const cfg=MODULE_CONFIG[module]; if(!cfg)return;
+  activeModule=module;
+  document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
+  $('moduleMenu').classList.remove('hidden');
+  $('moduleMenuTitle').textContent=cfg.title;
+  $('moduleMenuSub').textContent=cfg.sub;
+  $('moduleMenuOptions').innerHTML=cfg.options.map(o=>`<button class="module-option ${o[4]}" onclick="showModuleView('${module}','${o[0]}')"><span class="option-icon">${o[1]}</span><span class="option-copy">${o[2]}<small>${o[3]}</small></span></button>`).join('');
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===module));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToMainMenu(){
+  $('moduleMenu').classList.add('hidden');
+  showPage('dashboard');
+}
+function setCardVisible(el,visible){if(el)el.classList.toggle('hidden',!visible)}
+function moduleCardByText(section,needle){return [...(section?.querySelectorAll('.card')||[])].find(c=>(c.innerText||'').toLowerCase().includes(needle.toLowerCase()))}
+function showModuleView(module,view){
+  $('moduleMenu').classList.add('hidden');
+  document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
+  const section=$('page-'+module); if(section)section.classList.remove('hidden');
+  // Hide module contents first, then expose only the selected view.
+  if(section){
+    section.querySelectorAll(':scope > .hero, :scope > .card, :scope > .stats, :scope > .grid, :scope > .nav, :scope > .form-grid').forEach(el=>el.classList.add('hidden'));
+    section.querySelectorAll('.card').forEach(el=>el.classList.add('hidden'));
+  }
+  const salesHistory=$('salesHistoryCard') || $('salesHistoryBody')?.closest('.card');
+  if(salesHistory)salesHistory.classList.add('hidden');
+  if(module==='sales'){
+    const hero=section.querySelector('.hero'), inputCard=section.querySelector(':scope > .card');
+    if(view==='input'){setCardVisible(hero,true);setCardVisible(inputCard,true);$('salesDate').value=todayISO();}
+    if(view==='history'){setCardVisible(salesHistory,true);}
+    if(view==='history')loadSalesHistory();
+  } else if(module==='waste'){
+    const hero=section.querySelector('.hero');
+    const history=moduleCardByText(section,'History Waste');
+    if(view==='dashboard'){
+      setCardVisible(hero,true);section.querySelectorAll(':scope > .stats,:scope > .grid,:scope > .card').forEach(el=>{if(el!==history)el.classList.remove('hidden')});
+      if(typeof initWastePage==='function')initWastePage();
+    } else {setCardVisible(history,true);loadWasteHistory();}
+  } else if(module==='maintenance'){
+    const hero=section.querySelector('.hero'), cards=[...section.querySelectorAll(':scope > .card')];
+    const input=cards.find(c=>c.innerText.includes('Buat Maintenance Ticket'));
+    const search=cards.find(c=>c.innerText.includes('Cari Ticket berdasarkan No SC'));
+    const history=cards.find(c=>c.innerText.includes('History Maintenance'));
+    if(view==='input'){setCardVisible(hero,true);setCardVisible(input,true)}
+    if(view==='search'){setCardVisible(search,true)}
+    if(view==='history'){setCardVisible(history,true);loadMaintenanceHistory()}
+  } else if(module==='kpi'){
+    const hero=section.querySelector('.hero'),cards=[...section.querySelectorAll(':scope > .card')];
+    const input=cards.find(c=>c.querySelector('#kpiPhoto'));
+    const history=cards.find(c=>c.innerText.includes('History KPI'));
+    if(view==='input'){setCardVisible(hero,true);setCardVisible(input,true)}
+    if(view==='history'){setCardVisible(history,true);loadKPIHistory()}
+  } else if(module==='walkthrough'){
+    section.querySelectorAll(':scope > .card').forEach(c=>c.classList.remove('hidden'));
+    section.querySelector('.hero')?.classList.remove('hidden');
+    if(view==='history')initWalkthrough();
+    if(view==='detail'){initWalkthrough();setTimeout(()=>{const detail=$('walkthroughDetail');if(detail)detail.classList.remove('hidden')},0)}
+  } else if(module==='smallware'){
+    section.querySelector('.hero')?.classList.remove('hidden');
+    section.querySelector('.stats')?.classList.remove('hidden');
+    section.querySelector('.nav')?.classList.remove('hidden');
+    ['swPanelRequest','swPanelHistory','swPanelFrequency','swDetail'].forEach(id=>$(id)?.classList.add('hidden'));
+    const tab=view==='request'?'request':view==='frequency'?'frequency':'history';
+    showSmallwareTab(tab);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function showPage(page){
+  if($('moduleMenu')) $('moduleMenu').classList.add('hidden');
   document.querySelectorAll('.page-section').forEach(x=>x.classList.add('hidden'));
   const target = $('page-'+page);
   if(target) target.classList.remove('hidden');
